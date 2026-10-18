@@ -1,0 +1,20 @@
+{
+  "sde": ".SDE",
+  "output": "Sources/DogmaDataImporter/Generated/SDESchema.swift",
+  "files": [
+      "_sde.jsonl",
+      "categories.jsonl",
+      "groups.jsonl",
+      "types.jsonl",
+      "typeDogma.jsonl",
+      "dogmaAttributeCategories.jsonl",
+      "dogmaAttributes.jsonl",
+      "dogmaEffects.jsonl",
+      "dogmaUnits.jsonl",
+      "metaGroups.jsonl",
+      "planetSchematics.jsonl",
+      "dbuffCollections.jsonl",
+      "dynamicItemAttributes.jsonl",
+      "typeBonus.jsonl",
+  ]
+}
