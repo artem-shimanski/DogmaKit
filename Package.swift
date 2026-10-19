@@ -32,8 +32,8 @@ let package = Package(
         .plugin(name: "SDESchemaGeneratorPlugin", targets: ["SDESchemaGeneratorPlugin"])
     ],
     dependencies: [
-        .package(path: "/Users/artem.shimanski/git2/FlatBin"),
-        .package(path: "/Users/artem.shimanski/git2/BitField")
+        .package(url: "https://github.com/artem-shimanski/FlatBin.git", .upToNextMinor(from: "0.1.0")),
+        .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.0"))
     ],
     targets: [
         .target(
