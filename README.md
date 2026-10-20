@@ -43,16 +43,30 @@ What it does not do:
 * Experimental features: `Lifetimes` (DogmaKit, DogmaModels, DogmaText, DogmaPlanetary) and
   `LifetimeDependence` (DogmaModels). The API makes heavy use of `~Copyable` / `~Escapable`
   types and `@_lifetime`.
-* Two sibling packages:
-  * `FlatBin` — zero-copy flat-binary serialization
+* Two dependencies, resolved by SwiftPM:
+  * [FlatBin](https://github.com/artem-shimanski/FlatBin) — zero-copy flat-binary serialization
     (`@FlatCodable`, `.View` types, `FlatDecoder`); the format of every `.bin` resource.
-  * `BitField` — the `@BitField` / `@Bit` macros used for packed
-    IDs and modifiers.
+  * [BitField](https://github.com/artem-shimanski/BitField) — the `@BitField` / `@Bit` macros
+    used for packed IDs and modifiers.
 
-  Until they are referenced by URL, check both out next to this repository (`../FlatBin`,
-  `../BitField`).
+  Both ship macros: Xcode asks to trust them on the first build (command line:
+  `-skipMacroValidation`).
 
 If the `swift` in `PATH` is not the Xcode toolchain, use `xcrun swift`.
+
+## Installation
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/artem-shimanski/DogmaKit.git", .upToNextMinor(from: "0.1.0"))
+],
+targets: [
+    .target(name: "MyApp", dependencies: [
+        .product(name: "DogmaKit", package: "DogmaKit"),
+        .product(name: "DogmaText", package: "DogmaKit")
+    ])
+]
+```
 
 ## Products and targets
 
