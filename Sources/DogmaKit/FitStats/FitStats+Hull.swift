@@ -144,6 +144,26 @@ extension FitStats {
             return Resource(used: sum, total: total)
         }
         
+        /// Fuel blocks per hour burned by the structure's online service modules.
+        public var fuelPerHour: Double {
+            var sum: Double = 0
+            modules.forEach(in: .service) { module in
+                guard module.effectiveState >= .online else { return }
+                sum += module.serviceFuelPerHour
+            }
+            return sum
+        }
+
+        /// Fuel blocks spent once to online the structure's currently online service modules.
+        public var fuelToOnline: Double {
+            var sum: Double = 0
+            modules.forEach(in: .service) { module in
+                guard module.effectiveState >= .online else { return }
+                sum += module.serviceFuelToOnline
+            }
+            return sum
+        }
+
         /// Drone bay: `used` is the volume of all stacks (drones in space still occupy
         /// bay space), `total` is the hull's `droneCapacity`.
         public var droneBay: Resource {
