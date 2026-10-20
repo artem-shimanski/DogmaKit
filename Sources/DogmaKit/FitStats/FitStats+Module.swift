@@ -94,6 +94,16 @@ extension FitStats {
         public var calibrationUse: Double {
             attributes[.upgradeCost] ?? 0
         }
+
+        /// Fuel blocks per hour this service module burns while online, regardless of its state.
+        public var serviceFuelPerHour: Double {
+            attributes[.serviceModuleFuelAmount] ?? 0
+        }
+
+        /// Fuel blocks spent once to bring this service module online.
+        public var serviceFuelToOnline: Double {
+            attributes[.serviceModuleFuelOnlineAmount] ?? 0
+        }
         
         public var charge: Charge? {
             @_lifetime(borrow self)
