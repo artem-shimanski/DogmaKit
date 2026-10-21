@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3284752, 2026-03-31T11:27:11Z
+// SDE Version: 3607705, 2026-10-12T11:08:38Z
 //
 
 import DogmaModels
@@ -222,6 +222,14 @@ extension WarfareBuffID {
 	public static let hordeModeMicroJumpFieldGeneratorBlocker: WarfareBuffID = 2537
 	public static let triglavianSystemEffectRemoteArmorRepairPercentage: WarfareBuffID = 2538
 	public static let triglavianSystemEffectRemoteShieldBoostPercentage: WarfareBuffID = 2539
+	public static let amarrNavyShipsDbuffEffectFromFWRelaySite: WarfareBuffID = 2540
+	public static let caldariNavyShipsDbuffEffectFromFWRelaySite: WarfareBuffID = 2541
+	public static let minmatarNavyShipsDbuffEffectFromFWRelaySite: WarfareBuffID = 2542
+	public static let gallenteNavyShipsDbuffEffectFromFWRelaySite: WarfareBuffID = 2543
+	public static let fwdungeonEffect1: WarfareBuffID = 2544
+	public static let fwdungeonEffect2TacticalDestroyerHitpoints: WarfareBuffID = 2545
+	public static let fwdungeonEffect3: WarfareBuffID = 2546
+	public static let fwdungeonEffect4: WarfareBuffID = 2547
 	public static let hordeModeHeatDamageReduction: WarfareBuffID = 2548
 	public static let hordeModeOverloadBonus: WarfareBuffID = 2549
 	public static let hordeModeSignatureRadiusReduction: WarfareBuffID = 2550
@@ -236,4 +244,44 @@ extension WarfareBuffID {
 	public static let hordeModeRemoteShieldBoostAmountBonus: WarfareBuffID = 2559
 	public static let hordeModeWarpDriveBlocker: WarfareBuffID = 2560
 	public static let hordeModeCloakingDevicesBlocker: WarfareBuffID = 2561
+	public static let chaosDungeon1PrefixHybridDamageBonus: WarfareBuffID = 2562
+	public static let chaosDungeon2PrefixEnergyTurretDamage: WarfareBuffID = 2563
+	public static let chaosDungeon3PrefixProjectileTurretDamage: WarfareBuffID = 2564
+	public static let chaosDungeon4PrefixDisintegratorDamage: WarfareBuffID = 2565
+	public static let chaosDungeon5PrefixVortonProjectorDamage: WarfareBuffID = 2566
+	public static let chaosDungeon6PrefixRocketHAMTorpedoOnly: WarfareBuffID = 2567
+	public static let chaosDungeon7SuffixLocalArmorRepairAmount: WarfareBuffID = 2568
+	public static let chaosDungeon8SuffixLocalShieldBoostAmount: WarfareBuffID = 2569
+	public static let chaosDungeon9SuffixRemoteRepairEffectiveness: WarfareBuffID = 2570
+	public static let chaosDungeon10SuffixSignatureRadiusReduction: WarfareBuffID = 2571
+	public static let chaosDungeon11SuffixPolarizationEffect: WarfareBuffID = 2572
+	public static let chaosDungeon12EnergyNosferatuAndEnergyNeutralizerDrainAmount: WarfareBuffID = 2573
+	public static let chaosDungeon13SuffixAncillaryRemoteRepairEffect: WarfareBuffID = 2574
+	public static let chaosDungeon14ECMModuleStrengthIncrease: WarfareBuffID = 2575
+	public static let chaosDungeon15ImplicitMaxTargetRangeChadModeForced: WarfareBuffID = 2576
+	public static let chaosDungeon16ImplicitLongerRangeWebsButReducedStrength: WarfareBuffID = 2577
+	public static let chaosDungeon17ImplicitAfterburnerSpeedBonusForEveryone: WarfareBuffID = 2578
+	public static let chaosDungeon18ImplicitAllShipsHaveIncreasedTopSpeedButReducedAgility: WarfareBuffID = 2579
+	public static let chaosDungeon19ImplicitHeatDamageReduction: WarfareBuffID = 2580
+	public static let chaosDungeon20ImplicitOverheatingBonusIncludesEwar: WarfareBuffID = 2581
+	public static let chaosDungeon16ReducedWebStrengthusedWithTheOtherDbuffID: WarfareBuffID = 2582
+	public static let capsuleerDayEnergyWeaponDamage: WarfareBuffID = 2583
+	public static let capsuleerDayArmorResist: WarfareBuffID = 2584
+	public static let capsuleerDayMissileLaucherRateOfFire: WarfareBuffID = 2585
+	public static let capsuleerDayShieldHP: WarfareBuffID = 2586
+	public static let capsuleerDayProjectileTurretFalloff: WarfareBuffID = 2587
+	public static let capsuleerDayVelocity: WarfareBuffID = 2588
+	public static let capsuleerDayAmarrWarpSpeed: WarfareBuffID = 2589
+	public static let capsuleerDayCaldariWarpSpeed: WarfareBuffID = 2590
+	public static let capsuleerDayMinmatarWarpSpeed: WarfareBuffID = 2591
+	public static let itemTraderShieldBuff: WarfareBuffID = 2593
+	public static let hordeModeVortonProjectorBlocker: WarfareBuffID = 2594
+	public static let hordeModeLightFighterDamageBonus: WarfareBuffID = 2595
+	public static let hordeModeFighterVelocityBonus: WarfareBuffID = 2596
+	public static let hordeModeTurretOptimalRangeBonus: WarfareBuffID = 2597
+	public static let hordeModeMissileFlightTimeBonus: WarfareBuffID = 2598
+	public static let airepicArcHullResistance: WarfareBuffID = 2599
+	public static let bpdcdamageReceivedPercentage: WarfareBuffID = 2600
+	public static let airepicArcCapacitorRecharge: WarfareBuffID = 2601
+	public static let crimsonHarvestTrigTrialSmartBombBlock: WarfareBuffID = 2692
 }

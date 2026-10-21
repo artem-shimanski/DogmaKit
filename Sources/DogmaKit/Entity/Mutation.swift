@@ -201,7 +201,7 @@ extension DogmaEngine.Session {
         // When removing a mutation `info == base`, so passing `base` is always safe.
         switch entity.kind {
         case let .module(module):
-            var updated = Entity.Module(info, base: base)
+            var updated = try Entity.Module(info, base: base)
             guard updated.slot == module.slot else {
                 throw DogmaError.cantFit(typeID, to: entity.typeID)
             }

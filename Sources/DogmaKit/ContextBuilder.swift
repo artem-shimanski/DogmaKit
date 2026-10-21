@@ -485,8 +485,11 @@ struct ContextBuilder {
                 .chained(with: session.entities.ids(in: .implant(for: domain)))
                 .locationRequiredSkill(skill, from: session.entities, using: session.sde)
         case .hull:
+            // Loaded charges are located in the ship too (e.g. Jackdaw/Skua Sharpshooter Mode
+            // missile damage).
             session.entities.modules(on: domain)
                 .chained(with: session.entities.drones(on: domain))
+                .chained(with: session.entities.charges(on: domain))
                 .locationRequiredSkill(skill, from: session.entities, using: session.sde)
         default:
             EmptyCollection()

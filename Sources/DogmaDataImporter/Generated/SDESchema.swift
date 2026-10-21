@@ -1,7 +1,7 @@
 //
 // SDESchema.swift
 // DogmaKit
-// SDE Version: 3284752, 2026-03-31T11:27:11Z
+// SDE Version: 3607705, 2026-10-12T11:08:38Z
 //
 
 import Foundation
@@ -88,16 +88,21 @@ struct TypeInfo: Identifiable, Codable {
     var graphicID: Int? = nil
     var groupID: Int = 0
     var iconID: Int? = nil
+    var isDynamicType: Bool? = nil
+    var isRepackable: Bool? = nil
     var marketGroupID: Int? = nil
     var mass: Double? = nil
     var metaGroupID: Int? = nil
     var metaLevel: Int? = nil
     var name: NameInfo
+    var packagedVolume: Double? = nil
     var portionSize: Int = 0
     var published: Bool = false
     var raceID: Int? = nil
     var radius: Double? = nil
+    var shipTreeGroupID: Int? = nil
     var soundID: Int? = nil
+    var techLevel: Int? = nil
     var variationParentTypeID: Int? = nil
     var volume: Double? = nil
 }
@@ -128,14 +133,14 @@ struct DogmaAttributeCategoryInfo: Identifiable, Codable {
 
 struct DogmaAttributeInfo: Identifiable, Codable {
     struct DisplayNameInfo: Codable {
-        var de: String = ""
+        var de: String? = nil
         var en: String = ""
         var es: String? = nil
-        var fr: String = ""
-        var ja: String = ""
+        var fr: String? = nil
+        var ja: String? = nil
         var ko: String? = nil
-        var ru: String = ""
-        var zh: String = ""
+        var ru: String? = nil
+        var zh: String? = nil
     }
 
     struct TooltipDescriptionInfo: Codable {
@@ -424,14 +429,14 @@ struct TypeBonusInfo: Identifiable, Codable {
 
     struct RoleBonusesInfo: Codable {
         struct BonusTextInfo: Codable {
-            var de: String = ""
+            var de: String? = nil
             var en: String = ""
-            var es: String = ""
-            var fr: String = ""
-            var ja: String = ""
-            var ko: String = ""
-            var ru: String = ""
-            var zh: String = ""
+            var es: String? = nil
+            var fr: String? = nil
+            var ja: String? = nil
+            var ko: String? = nil
+            var ru: String? = nil
+            var zh: String? = nil
         }
 
         var bonus: Double? = nil

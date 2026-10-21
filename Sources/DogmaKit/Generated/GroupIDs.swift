@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3284752, 2026-03-31T11:27:11Z
+// SDE Version: 3607705, 2026-10-12T11:08:38Z
 //
 
 import DogmaModels
@@ -630,4 +630,6 @@ extension GroupID {
 	public static let expeditionCommandShip: GroupID = 4902
 	public static let expeditionCommandBurstCharges: GroupID = 4905
 	public static let specialEditionYachts: GroupID = 5087
+	public static let commandCarrier: GroupID = 5120
+	public static let hybridDrone: GroupID = 5239
 }

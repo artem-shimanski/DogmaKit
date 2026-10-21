@@ -14,6 +14,8 @@ public enum DogmaError: Error, Sendable {
     case entityLimitExceeded
     /// There are already `Fit.Pilots.maxCount` pilots; no more fit in `EntityID.pilotID`.
     case pilotLimitExceeded
+    /// The type has no slot effect, so it cannot be fitted into any rack.
+    case noSlot(TypeID)
 
     /// The rig size does not match the hull's (`rigSize` attribute).
     case rigSizeMismatch(TypeID, expected: RigSize, actual: RigSize)

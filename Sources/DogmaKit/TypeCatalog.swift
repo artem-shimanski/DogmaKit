@@ -37,6 +37,33 @@ public struct TypeCatalog: Sendable {
         sde[typeID]?.categoryID.load()
     }
 
+    /// The rack a module type goes into, derived from its effects exactly as `Fit.Hull.modules.add`
+    /// does. `nil` for a type that is not in the database or cannot be fitted into any slot.
+    public func slot(of typeID: TypeID) -> Entity.Module.Slot? {
+        guard let type = sde[typeID] else { return nil }
+        return try? Entity.Module(type).slot
+    }
+
+    /// Whether a module type passes the hull's fitting restrictions (`canFitShipType*`,
+    /// `canFitShipGroup*`, `fitsToShipType`). Slot and size checks are not part of it.
+    public func canFit(_ typeID: TypeID, to hullID: TypeID) -> Bool {
+        let sde = self.sde
+        guard let type = sde[typeID], let hull = sde[hullID] else { return false }
+        return type.fittingRequirements?.canFit(to: hull) ?? true
+    }
+
+    /// Type IDs of a group, sorted.
+    public func typeIDs(inGroup groupID: GroupID) -> [TypeID] {
+        var result: [TypeID] = []
+        let decoder = sde.decoder
+        decoder.decode(DogmaSDE.self).types.forEach { entry in
+            if entry.value.groupID.load() == groupID {
+                result.append(entry.key.load())
+            }
+        }
+        return result.sorted { $0.rawValue < $1.rawValue }
+    }
+
     /// Base attribute value of a type, without mutations or modifiers.
     public func attribute(_ attributeID: AttributeID, of typeID: TypeID) -> Double? {
         (sde[typeID]?.attributes[attributeID]?.load()).map(Double.init)

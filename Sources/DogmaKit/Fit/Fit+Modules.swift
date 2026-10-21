@@ -144,7 +144,7 @@ extension Fit {
                 throw DogmaError.invalidCategory(categoryID, expected: [.structureModule])
             }
 
-            var module = Entity.Module(info, base: base)
+            var module = try Entity.Module(info, base: base)
 
             // Slot-specific checks run before `canFit` to report a more precise reason.
             // No effect modifies rigSize/subSystemSlot/maxSubSystems, so base type values are compared.

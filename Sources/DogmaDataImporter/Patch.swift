@@ -54,27 +54,45 @@ func patchDamageReductionExponent(factor: String, sensitivity: String, exponent:
     }
 }
 
-@MainActor
-func patchTacticalDestroyer(name: String) {
-    types.addEffect("tacticalMode", toType: "\(name) Defense Mode")
-    types.addEffect("tacticalMode", toType: "\(name) Sharpshooter Mode")
-    types.addEffect("tacticalMode", toType: "\(name) Propulsion Mode")
-    
-    types.addAttribute("canFitShipType1", Float(types.nameToID[name]!.rawValue), toType: "\(name) Defense Mode")
-    types.addAttribute("canFitShipType1", Float(types.nameToID[name]!.rawValue), toType: "\(name) Sharpshooter Mode")
-    types.addAttribute("canFitShipType1", Float(types.nameToID[name]!.rawValue), toType: "\(name) Propulsion Mode")
-
-    types.addAttribute("tacticalModes", 1, toType: name)
-}
-
+/// Tactical modes (group "Ship Modifiers") have no slot effect, no fitting restriction and their
+/// hulls have no `tacticalModes` slot in the SDE. The only link between a mode and its hull is the
+/// name: "Anhinga Primary Mode" belongs to "Anhinga" (the last two words dropped). A mode whose hull
+/// cannot be resolved fails the import, so a new hull is never silently left without modes.
 @MainActor
 func patchTacticalModes() {
     dogmaEffects.append("tacticalMode", .init(id: .init(rawValue: extraEffectID + 2), category: .passive))
     dogmaAttributes.append("tacticalModes", .init(id: .init(rawValue: extraAttributeID), category: 4, minAttributeID: 0, maxAttributeID: 0, defaultValue: 0, unit: 122, options: [.isStackable, .highIsGood]))
-    patchTacticalDestroyer(name: "Confessor")
-    patchTacticalDestroyer(name: "Svipul")
-    patchTacticalDestroyer(name: "Jackdaw")
-    patchTacticalDestroyer(name: "Hecate")
+
+    guard let modeGroupID = groups.nameToID["Ship Modifiers"],
+          let shipCategoryID = categories.nameToID["Ship"] else {
+        fatalError("Tactical modes: group \"Ship Modifiers\" or category \"Ship\" is missing")
+    }
+    let shipCategory = CategoryID(rawValue: UInt16(shipCategoryID))
+
+    // Lowest ID wins on a name collision, as everywhere in the importer.
+    var hulls: [String: TypeID] = [:]
+    for (typeID, type) in types.elements where type.categoryID == shipCategory {
+        guard let name = types.idToName[typeID] else { continue }
+        if let existing = hulls[name], existing < typeID { continue }
+        hulls[name] = typeID
+    }
+
+    let modeIDs = types.elements
+        .filter { $0.value.groupID.rawValue == UInt16(modeGroupID) }
+        .keys
+        .sorted()
+    for modeID in modeIDs {
+        let modeName = types.idToName[modeID] ?? "\(modeID.rawValue)"
+        let words = modeName.split(separator: " ")
+        guard words.count > 2, let hullID = hulls[words.dropLast(2).joined(separator: " ")] else {
+            fatalError("Tactical modes: no hull for \"\(modeName)\" [\(modeID.rawValue)]")
+        }
+        types.addEffect("tacticalMode", toType: modeID)
+        types.addAttribute("canFitShipType1", Float(hullID.rawValue), toType: modeID)
+        // `fittingRequirements` was derived from the SDE attributes before the patch.
+        types.update(modeID) { $0.fittingRequirements = .init(canFitShipGroup: [], canFitShipType: [hullID]) }
+        types.addAttribute("tacticalModes", 1, toType: hullID)
+    }
 }
 
 @MainActor

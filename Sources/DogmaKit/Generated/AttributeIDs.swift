@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3284752, 2026-03-31T11:27:11Z
+// SDE Version: 3607705, 2026-10-12T11:08:38Z
 //
 
 import DogmaModels
@@ -2727,7 +2727,7 @@ extension AttributeID {
 	public static let behaviorRemoteCapacitorTransmitterRange: AttributeID = 5658
 	public static let behaviorRemoteCapacitorTransmitterFalloff: AttributeID = 5659
 	public static let behaviorRemoteCapacitorTransmitterDischarge: AttributeID = 5660
-	public static let conduitPassengerBonusPercent: AttributeID = 5681
+	public static let conduitPassengerBonusModAdd: AttributeID = 5681
 	public static let isCarrierJumpConduitPassenger: AttributeID = 5682
 	public static let capitalMJDCapReductionBonus: AttributeID = 5683
 	public static let mjdCapitalShipJumpCap: AttributeID = 5686
@@ -2798,7 +2798,7 @@ extension AttributeID {
 	public static let shipBonusAB3: AttributeID = 5960
 	public static let modeRemoteRepairCapacitorCostPostDiv: AttributeID = 5961
 	public static let modeRemoteRepairBonusPostDiv: AttributeID = 5962
-	public static let bastionModeArmorRepairAndShieldBoosterCapDurationBonus: AttributeID = 5964
+	public static let bastionModeArmorRepairCapDurationBonus: AttributeID = 5964
 	public static let miningCritChance: AttributeID = 5967
 	public static let constantOne: AttributeID = 5968
 	public static let miningCritBonusYield: AttributeID = 5969
@@ -2829,6 +2829,12 @@ extension AttributeID {
 	public static let modeAnhingaMissileFlightTimePostDiv: AttributeID = 6080
 	public static let modeAnhingaMissileMaxVelocityPostDiv: AttributeID = 6081
 	public static let modeAnhingaCruiseLauncherTorpedoLauncherRapidHeavyLauncherROFPostDiv: AttributeID = 6082
+	public static let shipBonusCD3: AttributeID = 6088
+	public static let shipBonusMD3: AttributeID = 6089
+	public static let boosterMiningCriticalHitChanceBonus: AttributeID = 6090
+	public static let boosterHackingVirusCoherenceModifier: AttributeID = 6092
+	public static let boosterMinerMaxRangeBonus: AttributeID = 6098
+	public static let boosterMiningLaserIceGasHarvesterDurationReductionAndCapacitor: AttributeID = 6099
 	public static let ignoreMiningCrits: AttributeID = 6108
 	public static let shipBonusForceAuxiliaryG5: AttributeID = 6112
 	public static let shipBonusForceAuxiliaryC5: AttributeID = 6113
@@ -2836,8 +2842,44 @@ extension AttributeID {
 	public static let shipBonusForceAuxiliaryM5: AttributeID = 6116
 	public static let expeditionCommandBurstProbeStrengthBonusCharID: AttributeID = 6118
 	public static let expeditionCommandBurstProbeDeviationBonusCharID: AttributeID = 6119
-	public static let tacticalModes: AttributeID = 6120
-	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6121
-	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6122
-	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6123
+	public static let boosterMissileDamageBonusPostPercent: AttributeID = 6125
+	public static let fighterLightDamageMultiplier: AttributeID = 6182
+	public static let fighterMaxVelocityMultiplier: AttributeID = 6183
+	public static let smartbombDamageResistance: AttributeID = 6184
+	public static let bombDamageResistance: AttributeID = 6185
+	public static let chainLightningDamageResistance: AttributeID = 6186
+	public static let bastionModeShieldBoosterCapDurationBonus: AttributeID = 6187
+	public static let shipBonusCarrierA6: AttributeID = 6191
+	public static let shipBonusCommandCarrierArmorCommand: AttributeID = 6192
+	public static let shipBonusCommandCarrierInformationCommand: AttributeID = 6193
+	public static let shipBonusCommandCarrierSkirmishCommand: AttributeID = 6194
+	public static let shipBonusCommandCarrierShieldCommand: AttributeID = 6195
+	public static let shipBonusCarrierC6: AttributeID = 6196
+	public static let shipBonusCarrierG7: AttributeID = 6197
+	public static let shipBonusCarrierG6: AttributeID = 6198
+	public static let shipBonusCarrierM6: AttributeID = 6199
+	public static let shipBonusCarrierM7: AttributeID = 6200
+	public static let angelCartelProjectileReloadingSpeed: AttributeID = 6203
+	public static let constantMinusNinetyNine: AttributeID = 6205
+	public static let shipBonusCommandCarrierCMJDDuration: AttributeID = 6207
+	public static let shipBonusCarrierM8: AttributeID = 6208
+	public static let shipBonusCommandCarrierCMJDShipJumpCap: AttributeID = 6210
+	public static let filamentHighSecOnly: AttributeID = 6213
+	public static let filamentCharacterSPLimit: AttributeID = 6214
+	public static let filamentCharacterAgeLimit: AttributeID = 6215
+	public static let breacherPodDamageResistance: AttributeID = 6255
+	public static let breacherPodActivatedDamageReceivedPercentage: AttributeID = 6257
+	public static let dScanRangeBonus: AttributeID = 6269
+	public static let proximityDbuffEffectTacticalDestroyerHP: AttributeID = 6270
+	public static let npcDroneTypeID: AttributeID = 6271
+	public static let conduitPassengerBonusModAddSkill: AttributeID = 6350
+	public static let debuffLanceDamageResistance: AttributeID = 6363
+	public static let baseJumpBridgeCapacitorCost: AttributeID = 6364
+	public static let remoteCapacitorImpedance: AttributeID = 6463
+	public static let remoteCapacitorImpedanceBonus: AttributeID = 6464
+	public static let behaviorSiegeRemoteCapacitorImpedanceModifier: AttributeID = 6465
+	public static let tacticalModes: AttributeID = 6466
+	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6467
+	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6468
+	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6469
 }

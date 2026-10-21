@@ -43,8 +43,9 @@ extension Entity {
 
         /// `base` is the base type of a mutated (abyssal) module, see `Mutation`. Slot,
         /// hardpoint, flags and `defaultReloadTime` come from the resulting type's effects;
-        /// attributes fall back to the base type.
-        init(_ type: DogmaSDE.TypeInfo.View, base: DogmaSDE.TypeInfo.View? = nil) {
+        /// attributes fall back to the base type. Throws `DogmaError.noSlot` for a type with
+        /// no slot effect: such a type cannot be fitted anywhere.
+        init(_ type: DogmaSDE.TypeInfo.View, base: DogmaSDE.TypeInfo.View? = nil) throws(DogmaError) {
             var slot: Slot? = nil
             var hardpoint = Hardpoint.none
             var flags = Flags(rawValue: 0)
@@ -92,11 +93,10 @@ extension Entity {
             }
             flags.forceReload = forceReload
 
+            guard let slot else { throw DogmaError.noSlot(type.id.load()) }
 
-            assert(slot != nil)
-            
             self.hardpoint = hardpoint
-            self.slot = slot!
+            self.slot = slot
             self.flags = flags
             self.defaultReloadTime = defaultReloadTime
             // Default to the type's highest state, but not overload. Rigs and subsystems have no online effect, so `.offline`.
