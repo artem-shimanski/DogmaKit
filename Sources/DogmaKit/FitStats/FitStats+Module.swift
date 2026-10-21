@@ -555,12 +555,16 @@ extension FitStats {
             attributes[.optimalSigRadius, default: .sde]
         }
         
+        /// Average yield, m³/s: `miningAmount` per cycle, including the expected critical
+        /// bonus `miningCritChance · miningCritBonusYield`. `specialtyMiningAmount`
+        /// is not added: the SDE only mirrors `miningAmount` into it for display.
         public func miningYield() -> Double {
             guard effectiveState >= .active else {return 0}
             let cycle = cycleTime()
             guard cycle > 0 else {return 0}
-            let amount = (attributes[.specialtyMiningAmount] ?? 0) + (attributes[.miningAmount] ?? 0)
-            return amount / cycle
+            let amount = attributes[.miningAmount] ?? 0
+            let critBonus = (attributes[.miningCritChance] ?? 0) * (attributes[.miningCritBonusYield] ?? 0)
+            return amount * (1 + critBonus) / cycle
         }
         
         /// Propulsion parameters (afterburner / microwarpdrive), or `nil` if not a propulsion module.

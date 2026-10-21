@@ -157,6 +157,11 @@ extension FitStats {
         public func cycleTime(of weapon: Weapon) -> Double {
             switch weapon {
             case .drone:
+                // The weapon fires at `speed`; drones that also run an effect (Orbweaver: web
+                // with `duration`) must not take the longer of the two, as `rawCycleTime` does.
+                if let speed = attributes[.speed], speed > 0 {
+                    return speed / 1000
+                }
                 return rawCycleTime
             case .fighterAttackTurret:
                 return (attributes[.fighterAbilityAttackTurretDuration] ?? 0) / 1000
@@ -444,8 +449,10 @@ extension FitStats {
             guard isOperating else { return 0 }
             let cycle = cycleTime()
             guard cycle > 0 else { return 0 }
-            let amount = (attributes[.specialtyMiningAmount] ?? 0) + (attributes[.miningAmount] ?? 0)
-            return amount / cycle * Double(count)
+            // Same as `Module.miningYield`; no SDE drone carries crit attributes today.
+            let amount = attributes[.miningAmount] ?? 0
+            let critBonus = (attributes[.miningCritChance] ?? 0) * (attributes[.miningCritBonusYield] ?? 0)
+            return amount * (1 + critBonus) / cycle * Double(count)
         }
 
         /// Change of the target's capacitor per cycle for the whole stack if the drone is a

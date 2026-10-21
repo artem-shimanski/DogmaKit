@@ -164,14 +164,26 @@ extension FitStats {
             return sum
         }
 
-        /// Drone bay: `used` is the volume of all stacks (drones in space still occupy
-        /// bay space), `total` is the hull's `droneCapacity`.
+        /// Drone bay: `used` is the volume of all drone stacks (drones in space still occupy
+        /// bay space), `total` is the hull's `droneCapacity`. Fighters go to `fighterBay`.
         public var droneBay: Resource {
             var used: Double = 0
             drones.forEach { drone in
+                guard drone.squadron == .none else { return }
                 used += (drone.attributes[.volume] ?? 0) * Double(drone.count)
             }
             return Resource(used: used, total: attributes[.droneCapacity] ?? 0)
+        }
+
+        /// Fighter bay: `used` is the volume of all squadrons (launched ones included), `total`
+        /// is the hull's `fighterCapacity`.
+        public var fighterBay: Resource {
+            var used: Double = 0
+            drones.forEach { drone in
+                guard drone.squadron != .none else { return }
+                used += (drone.attributes[.volume] ?? 0) * Double(drone.count)
+            }
+            return Resource(used: used, total: attributes[.fighterCapacity] ?? 0)
         }
 
         /// Drone bandwidth: only drones in space use it, so `used` counts active stacks only.
@@ -274,11 +286,16 @@ extension FitStats {
 
         /// Targeting characteristics. Lock time is `Targeting.lockTime(signatureRadius:)`.
         public var targeting: Targeting {
-            Targeting(maxTargetRange: attributes[.maxTargetRange] ?? 0,
-                      scanResolution: attributes[.scanResolution] ?? 0,
-                      maxLockedTargets: Int(attributes[.maxLockedTargets] ?? 0),
-                      sensorStrength: sensorStrength,
-                      scanSpeed: attributes[.scanSpeed] ?? 0)
+            // The pilot's limit is a character attribute (domain charID in the SDE). Without a
+            // pilot entry the ship's limit alone applies.
+            let pilot = Pilot(session: session, id: id.pilot)
+            let shipLimit = attributes[.maxLockedTargets] ?? 0
+            let limit = pilot.attributes[.maxLockedTargets].map { min(shipLimit, $0) } ?? shipLimit
+            return Targeting(maxTargetRange: attributes[.maxTargetRange] ?? 0,
+                             scanResolution: attributes[.scanResolution] ?? 0,
+                             maxLockedTargets: Int(limit),
+                             sensorStrength: sensorStrength,
+                             scanSpeed: attributes[.scanSpeed] ?? 0)
         }
 
         /// Sensor strength by type (also the ECM resistance). A ship has exactly one

@@ -294,8 +294,17 @@ struct ContextBuilder {
                     apply(to: id)
                 }
             case .locationRequiredDomainSkill:
-                for id in locationRequiredSkill(entity.typeID, in: domain, using: session) {
-                    apply(to: id)
+                // The skill itself is the required skill. Pilot-domain bonuses (drone and
+                // missile damage skills) target what the pilot owns: drones and loaded charges,
+                // which live on the hull, not the pilot's implants and boosters.
+                if domain.category == .pilot {
+                    for id in ownerRequiredSkill(entity.typeID, in: domain, using: session) {
+                        apply(to: id)
+                    }
+                } else {
+                    for id in locationRequiredSkill(entity.typeID, in: domain, using: session) {
+                        apply(to: id)
+                    }
                 }
             case let .locationRequiredSkill(skillID):
                 for id in locationRequiredSkill(skillID, in: domain, using: session) {
@@ -468,8 +477,11 @@ struct ContextBuilder {
                 .chained(with: entities.ids(in: .implant(for: domain)))
                 .locationGroup(groupID, from: entities)
         case .hull:
+            // Loaded charges are located in the ship too (e.g. force auxiliary bonuses to the
+            // Capacitor Booster Charge group).
             entities.modules(on: domain)
                 .chained(with: entities.drones(on: domain))
+                .chained(with: entities.charges(on: domain))
                 .locationGroup(groupID, from: entities)
         default:
             EmptyCollection()
@@ -486,9 +498,9 @@ struct ContextBuilder {
                 .locationRequiredSkill(skill, from: session.entities, using: session.sde)
         case .hull:
             // Loaded charges are located in the ship too (e.g. Jackdaw/Skua Sharpshooter Mode
-            // missile damage).
+            // missile damage). Drones are not: bonuses meant for them are owner-required
+            // (`ownerRequiredSkill`), while ship-located Mining bonuses must not reach mining drones.
             session.entities.modules(on: domain)
-                .chained(with: session.entities.drones(on: domain))
                 .chained(with: session.entities.charges(on: domain))
                 .locationRequiredSkill(skill, from: session.entities, using: session.sde)
         default:

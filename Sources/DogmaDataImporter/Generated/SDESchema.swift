@@ -1,7 +1,7 @@
 //
 // SDESchema.swift
 // DogmaKit
-// SDE Version: 3607705, 2026-10-12T11:08:38Z
+// SDE Version: 3632936, 2026-10-20T11:08:17Z
 //
 
 import Foundation
