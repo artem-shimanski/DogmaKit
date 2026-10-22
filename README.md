@@ -140,6 +140,22 @@ The engine reads its data from flat-binary resources generated from the SDE JSON
 Generation is done by two command plugins that write into the package directory. The SDE
 export itself is expected in `.SDE/` at the package root and is not in git.
 
+### Updating the SDE
+
+```
+Scripts/update-sde.sh [--build N]   # default: the latest build on developers.eveonline.com
+Scripts/update-sde.sh --check       # requested / cached / linked / latest builds, changes nothing
+```
+
+The script keeps a shared cache of dumps outside any repository, one `<build>/` directory per
+build, in `$EVE_SDE_CACHE` (default `~/Library/Caches/EVE-SDE`), downloads a build only when it
+is not cached, and makes `.SDE` a symlink to it. A real `.SDE` directory is moved into the cache
+under its own build number (or aside as `.replaced-<timestamp>` if that slot is taken), never
+deleted. Without `--command` it then runs `generate-schema`, rebuilds the importer and runs
+`sde-import`. `--package DIR --command VERB [-- args]` does the same for another package.
+Packages that link the cache are listed in `$EVE_SDE_CACHE/.packages`; after a successful update the
+build the package was linked to before is deleted unless another listed package still links it.
+
 1. `generate-schema` — reads `.sde-config.json` (input directory and the list of JSONL files)
    and derives the `Codable` row schema into
    `Sources/DogmaDataImporter/Generated/SDESchema.swift`.

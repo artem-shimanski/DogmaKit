@@ -277,5 +277,6 @@ func sdeVersionSource() -> String {
         public static let buildNumber = \(version.buildNumber)
         public static let releaseDate = "\(version.releaseDate)"
     }
+
     """
 }

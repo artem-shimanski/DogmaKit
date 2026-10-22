@@ -17,6 +17,18 @@ struct DogmaDataImporterPlugin: CommandPlugin {
         let planetaryOutput = context.package.directoryURL.appending(path: "Sources/DogmaPlanetary")
         let tool = try context.tool(named: "DogmaDataImporter").url
         
-        try Process.run(tool, arguments: [sde.path(), output.path(), textOutput.path(), planetaryOutput.path()])
+        let process = Process()
+        process.executableURL = tool
+        process.arguments = [sde.path(), output.path(), textOutput.path(), planetaryOutput.path()]
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw ImportError(terminationStatus: process.terminationStatus)
+        }
     }
+}
+
+struct ImportError: Error, CustomStringConvertible {
+    var terminationStatus: Int32
+    var description: String { "DogmaDataImporter failed with exit status \(terminationStatus)" }
 }
