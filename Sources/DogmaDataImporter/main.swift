@@ -159,6 +159,12 @@ try typeExtension(of: CategoryID.self, from: categories.nameToID)
 try typeExtension(of: UnitID.self, from: units.nameToID)
     .write(to: outputDir.appending(path: "Generated/UnitIDs.swift"), atomically: true, encoding: .utf8)
 
+// The `DogmaIDs` target sits next to `DogmaKit`.
+let idsOutputDir = outputDir.appending(path: "../DogmaIDs").standardizedFileURL
+try? FileManager.default.createDirectory(at: idsOutputDir.appending(path: "Generated"), withIntermediateDirectories: true)
+try sdeVersionSource()
+    .write(to: idsOutputDir.appending(path: "Generated/SDEVersion.swift"), atomically: true, encoding: .utf8)
+
 
 // Planetary industry. Schematics load before the name catalog: their names feed both `SchematicID` and `text-en.bin`.
 let planetSchematics = try await loadPlanetSchematics(from: sde)

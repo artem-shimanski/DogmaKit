@@ -58,7 +58,7 @@ If the `swift` in `PATH` is not the Xcode toolchain, use `xcrun swift`.
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/artem-shimanski/DogmaKit.git", .upToNextMinor(from: "0.2.0"))
+    .package(url: "https://github.com/artem-shimanski/DogmaKit.git", .upToNextMinor(from: "0.2.1"))
 ],
 targets: [
     .target(name: "MyApp", dependencies: [
@@ -153,6 +153,7 @@ export itself is expected in `.SDE/` at the package root and is not in git.
    * `Sources/DogmaKit/Resources/sde.bin` — the engine's database;
    * `Sources/DogmaKit/Generated/*.swift` — ID constants (`TypeID`, `GroupID`, `AttributeID`,
      `EffectID`, …);
+   * `Sources/DogmaIDs/Generated/SDEVersion.swift` — the SDE build number and release date;
    * `Sources/DogmaText/Resources/text-en.bin` — English names;
    * `Sources/DogmaPlanetary/Resources/planetary.bin` and
      `Sources/DogmaPlanetary/Generated/SchematicIDs.swift` — PI data.

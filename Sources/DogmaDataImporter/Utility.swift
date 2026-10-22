@@ -263,3 +263,19 @@ extension [DogmaSDE.TypeInfo.Attribute] {
     }
 }
 
+
+/// Source of `DogmaIDs/Generated/SDEVersion.swift`.
+func sdeVersionSource() -> String {
+    """
+    //
+    // DogmaKit
+    // SDE Version: \(version.buildNumber), \(version.releaseDate)
+    //
+
+    /// The SDE build the package's data was imported from.
+    public enum SDEVersion {
+        public static let buildNumber = \(version.buildNumber)
+        public static let releaseDate = "\(version.releaseDate)"
+    }
+    """
+}
