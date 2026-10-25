@@ -99,7 +99,7 @@ let package = Package(
         ),
         .testTarget(
             name: "DogmaKitIOTests",
-            dependencies: ["DogmaKitIO", "DogmaKit"]
+            dependencies: ["DogmaKitIO", "DogmaKit", "DogmaText"]
         ),
         .executableTarget(
             name: "DogmaDataImporter",

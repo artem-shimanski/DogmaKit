@@ -17,10 +17,11 @@ What the engine does:
   neutralizers, webs, ECM — are part of the calculation.
 * Derived stats on top of the calculated attributes: DPS and volley with application against a
   target, effective HP, local and remote repair, sustainable tank, capacitor simulation, heat
-  simulation, spool-up, navigation and lock time.
+  simulation, spool-up, navigation and lock time, and the warfare buffs applied to each hull with
+  their sources.
 * Mutaplasmids (abyssal modules and drones), tactical modes, strategic cruiser subsystems.
-* A native JSON fit document (`FitDocument`) for storage and round-trip, plus importers for
-  EFT, DNA and the in-game XML format.
+* A native JSON fit document (`FitDocument`) for storage and round-trip, plus import and export
+  of EFT, DNA and the in-game XML format.
 
 What it does not do:
 
@@ -75,7 +76,7 @@ targets: [
 | `DogmaIDs` | library | The typed SDE identifiers (`TypeID`, `GroupID`, `AttributeID`, `EffectID`, …). No dependencies; the `SDE` package depends on this product alone. |
 | `DogmaModels` | — (re-exported) | The flat-binary schema of `sde.bin` (`DogmaSDE`), `PerfectDictionary`, the `TypeResolver` and `NameCatalog` protocols. Re-exported by `DogmaKit`. |
 | `DogmaKit` | library | The engine: `DogmaEngine`, the write API (`Fit`), the read API (`FitStats`), `FitDocument`, `TypeCatalog`. Ships `Resources/sde.bin` and the generated ID constants (`TypeID.rifter`, `AttributeID.cpu`, …). |
-| `DogmaKitIO` | library | Importers for EFT, DNA and in-game XML into `FitDocument` (`FitImporter`). Pure transformations; type names come from a `TypeResolver` the consumer supplies. No export yet. |
+| `DogmaKitIO` | library | Import and export of EFT, DNA and in-game XML (`FitImporter`, `FitExporter`), to and from `FitDocument`. Pure transformations; names come from a `TypeResolver` / `NameCatalog` the consumer supplies (`DogmaText.TextCatalog` implements both). |
 | `DogmaText` | library | English names from the SDE (`Resources/text-en.bin`, `TextCatalog`). Independent of `DogmaKit`. `TextCatalog` is a `TypeResolver` itself and can be installed as the debug name source so IDs print as `Rifter [587]`. |
 | `DogmaPlanetary` | library | Planetary production: `planetary.bin`, `PlanetaryCatalog`, the extractor formula, `Colony` built from a `ColonySnapshot`, `ColonySimulation` producing a `Forecast`, colony fitting and customs. Does not depend on `DogmaKit`. |
 | `SDESchemaGenerator` | — | Executable behind the `generate-schema` plugin. |
