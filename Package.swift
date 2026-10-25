@@ -33,7 +33,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/artem-shimanski/FlatBin.git", .upToNextMinor(from: "0.1.0")),
-        .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.0")),
+        .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.1")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0")
     ],
     targets: [

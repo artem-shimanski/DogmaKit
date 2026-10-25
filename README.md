@@ -41,7 +41,7 @@ What it does not do:
 ## Requirements
 
 * Swift tools 6.4, Swift language mode 6.
-* macOS 26+, iOS 26+.
+* macOS 26+, iOS 26+, Linux (built and tested with the `swift:6.4` image).
 * Experimental features: `Lifetimes` (DogmaKit, DogmaModels, DogmaText, DogmaPlanetary) and
   `LifetimeDependence` (DogmaModels). The API makes heavy use of `~Copyable` / `~Escapable`
   types and `@_lifetime`.
