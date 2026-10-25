@@ -102,14 +102,19 @@ func patchAncillaryArmorRepairer() {
     dogmaAttributes.append("chargedArmorDamageMultiplierPostDiv", .init(id: .init(rawValue: extraAttributeID + 1), category: 5, minAttributeID: 0, maxAttributeID: 0, defaultValue: 0, unit: 0, options: [.isStackable, .highIsGood]))
 
     let attributeID = dogmaAttributes.nameToID["chargedArmorDamageMultiplier"]!
-    let effectID = dogmaEffects.nameToID["fueledArmorRepair"]!
+    // Local and remote ancillary armor repairers: paste multiplies the repair amount of both.
+    let effectIDs = ["fueledArmorRepair", "shipModuleAncillaryRemoteArmorRepairer"].map { dogmaEffects.nameToID[$0]! }
 
+    // Unloaded, `fueledArmorRepairBonus` divides the multiplier by its own copy, so the repair
+    // is multiplied by exactly 1; paste resets the divisor to 1. Any positive value works
+    // (1 just means paste gives nothing), but 0 turns the repair amount into 0 · ∞ = NaN.
+    // Abyssal final types carry neither attribute: both come from the base type at runtime.
     for (typeID, type) in types.elements {
         if let value = type.attributes[attributeID] {
-#warning("TODO: value == 1?")
+            precondition(value > 0, "chargedArmorDamageMultiplier = \(value) on type \(typeID.rawValue)")
             types.addAttribute("chargedArmorDamageMultiplierPostDiv", value, toType: typeID)
         }
-        if type.effects.contains(where: {$0.id == effectID}) {
+        if type.effects.contains(where: { effectIDs.contains($0.id) }) {
             types.addEffect("fueledArmorRepairBonus", toType: typeID)
         }
     }

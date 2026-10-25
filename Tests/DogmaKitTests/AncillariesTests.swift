@@ -137,4 +137,44 @@ struct AncillariesTests {
         #expect(abs(tankRepair - cycleRate) < 1e-9, "tank = \(tankRepair), expected \(cycleRate)")
         #expect(tankRepair < rawRate, "clip reload must lower the rate: \(tankRepair) vs \(rawRate)")
     }
+
+    /// Nanite repair paste multiplies the per-cycle armor repair by `chargedArmorDamageMultiplier` (3).
+    /// Covers every kind of ancillary armor repairer: a plain one, an abyssal one (its final type
+    /// carries no `chargedArmorDamageMultiplier` of its own — it comes from the base type) and a
+    /// remote one (a different repair effect).
+    @Test("Nanite repair paste triples armorDamageAmount", arguments: [
+        (TypeID.largeAncillaryArmorRepairer, TypeID?.none),
+        (.largeAncillaryArmorRepairer, .unstableLargeAncillaryArmorRepairerMutaplasmid),
+        (.largeAncillaryRemoteArmorRepairer, nil)
+    ])
+    func naniteRepairPasteTriplesRepair(typeID: TypeID, mutaplasmid: TypeID?) async throws {
+        let engine = DogmaEngine()
+        let moduleIDs = try await engine.edit { fit -> [ModuleID] in
+            var moduleIDs: [ModuleID] = []
+            for isLoaded in [false, true] {
+                let pilot = try fit.pilots.add(skillLevel: 5)
+                let hull = pilot.hull
+                try hull.set(typeID: .dominix)
+                if let mutaplasmid {
+                    let module = try hull.modules.add(typeID, mutaplasmid: mutaplasmid)
+                    if isLoaded { try module.setCharge(.naniteRepairPaste) }
+                    moduleIDs.append(module.id)
+                } else {
+                    let module = try hull.modules.add(typeID)
+                    if isLoaded { try module.setCharge(.naniteRepairPaste) }
+                    moduleIDs.append(module.id)
+                }
+            }
+            return moduleIDs
+        }
+        let amounts = await engine.evaluate { stats -> [Double] in
+            var amounts: [Double] = []
+            for moduleID in moduleIDs {
+                amounts.append(stats[moduleID].attributes[.armorDamageAmount] ?? 0)
+            }
+            return amounts
+        }
+        #expect(amounts[0] > 0)
+        #expect(abs(amounts[1] / amounts[0] - 3) < 1e-9, "unloaded = \(amounts[0]), loaded = \(amounts[1])")
+    }
 }
