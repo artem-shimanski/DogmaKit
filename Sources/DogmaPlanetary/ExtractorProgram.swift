@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Darwin
 
 /// Extractor control unit (ECU) program: the output of every cycle from installation to expiry.
 ///

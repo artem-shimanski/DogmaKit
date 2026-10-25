@@ -5,11 +5,9 @@
 //  Created by Artem Shimanski on 06.07.2026.
 //
 
-import simd
-
 @frozen
 public struct Resonance: Sendable, Equatable {
-    public typealias Storage = simd_double3x4
+    public typealias Storage = DamageMatrix
     public var storage: Storage
     
     @inlinable

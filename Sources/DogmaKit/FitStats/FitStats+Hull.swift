@@ -5,8 +5,6 @@
 //  Created by Artem Shimanski on 05.07.2026.
 //
 
-import simd
-
 extension Entity.Module.Hardpoint {
     /// The damage source category for a module with this hardpoint.
     var damageSource: FitStats.Hull.DamageSource {

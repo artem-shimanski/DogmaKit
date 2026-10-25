@@ -7,7 +7,6 @@
 
 
 import DogmaModels
-import simd
 
 extension Array {
     init(minimumCapacity: Int) {
@@ -96,14 +95,6 @@ extension DogmaSDE.TypeInfo.ChargeRequirements.View {
         }
         
         return true
-    }
-}
-
-extension simd_double3x4 {
-    @inlinable
-    init(repeating scalar: Double) {
-        let c = SIMD4<Double>(repeating: scalar)
-        self.init(c, c, c)
     }
 }
 

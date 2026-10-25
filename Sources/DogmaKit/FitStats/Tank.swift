@@ -5,8 +5,6 @@
 //  Created by Artem Shimanski on 06.07.2026.
 //
 
-import simd
-
 @frozen
 public struct Tank: SIMD, Sendable {
     public typealias Storage = SIMD4<Double>
@@ -94,9 +92,9 @@ extension Tank {
 extension Tank {
     @inlinable
     public func effective(resonance: Resonance, damagePattern: DamageVector = DamageVector(repeating: 0.25)) -> Self {
-        let resonance = resonance.storage
-        let extResonance = simd_double4x4(resonance[0], resonance[0], resonance[1], resonance[2])
-        let damageCoefs = damagePattern.storage * extResonance
+        // Passive shield regen and shield repair both go through the shield resonance.
+        let layers = resonance.storage.applied(to: damagePattern.storage)
+        let damageCoefs = Storage(layers.x, layers.x, layers.y, layers.z)
         let safeEpsilon = Storage(repeating: 1e-6)
         let isZeroOrLess = damageCoefs .<= .zero
         

@@ -5,8 +5,6 @@
 //  Created by Artem Shimanski on 05.07.2026.
 //
 
-import simd
-
 @frozen
 public struct DamageVector: SIMD, Sendable {
     public typealias Storage = SIMD4<Double>

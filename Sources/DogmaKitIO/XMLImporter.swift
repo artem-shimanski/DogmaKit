@@ -20,6 +20,10 @@
 //
 
 import Foundation
+#if canImport(FoundationXML)
+// Outside Apple platforms `XMLParser` lives in a separate module.
+import FoundationXML
+#endif
 import DogmaKit
 
 struct XMLImporter {

@@ -5,8 +5,6 @@
 //  Created by Artem Shimanski on 27.07.2026.
 //
 
-import simd
-
 /// Sensor type. A ship has exactly one non-zero type; an ECM module has a strength for
 /// each of the four.
 public enum SensorType: UInt8, BitwiseCopyable, Sendable, CaseIterable {

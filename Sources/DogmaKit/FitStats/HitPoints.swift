@@ -5,8 +5,6 @@
 //  Created by Artem Shimanski on 06.07.2026.
 //
 
-import simd
-
 @frozen
 public struct HitPoints: SIMD, Sendable {
     public typealias Storage = SIMD3<Double>
@@ -66,7 +64,7 @@ extension HitPoints {
 extension HitPoints {
     @inlinable
     public func effective(resonance: Resonance, damagePattern: DamageVector = DamageVector(repeating: 0.25)) -> Self {
-        let damageCoefs = damagePattern.storage * resonance.storage
+        let damageCoefs = resonance.storage.applied(to: damagePattern.storage)
         let safeEpsilon = Storage(repeating: 1e-6)
         let isZeroOrLess = damageCoefs .<= .zero
         
