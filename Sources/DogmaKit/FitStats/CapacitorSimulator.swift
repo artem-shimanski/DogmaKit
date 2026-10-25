@@ -196,8 +196,11 @@ public struct CapacitorSimulator: Sendable, Equatable {
     }
 
     /// Event-driven simulation from a full capacitor. Returns whether the capacitor ran dry,
-    /// when, and the lowest charge.
-    private func simulate(horizon: Double) -> (depleted: Bool, time: Double, minCap: Double) {
+    /// when, and the lowest charge. `observe` receives every activation: its time and the
+    /// charge right before and after it (the last one may be negative when it runs dry).
+    func simulate(horizon: Double,
+                  observe: ((_ time: Double, _ before: Double, _ after: Double) -> Void)? = nil)
+        -> (depleted: Bool, time: Double, minCap: Double) {
         var states: [State] = []
         states.reserveCapacity(nodes.count)
         for node in nodes where node.cycleTime > 0 {
@@ -239,8 +242,10 @@ public struct CapacitorSimulator: Sendable, Equatable {
             tLast = next
 
             // Apply the event.
+            let before = cap
             cap += states[idx].amount
             if cap > capacity { cap = capacity }
+            observe?(next, before, cap)
             if cap <= 0 {
                 return (true, next, 0)
             }

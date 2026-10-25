@@ -18,7 +18,8 @@ What the engine does:
 * Derived stats on top of the calculated attributes: DPS and volley with application against a
   target, effective HP, local and remote repair, sustainable tank, capacitor simulation, heat
   simulation, spool-up, navigation and lock time, and the warfare buffs applied to each hull with
-  their sources.
+  their sources. Curves for plotting: DPS by range and target velocity, lock time by signature
+  radius, capacitor level by time.
 * Mutaplasmids (abyssal modules and drones), tactical modes, strategic cruiser subsystems.
 * A native JSON fit document (`FitDocument`) for storage and round-trip, plus import and export
   of EFT, DNA and the in-game XML format.
