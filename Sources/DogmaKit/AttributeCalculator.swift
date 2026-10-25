@@ -27,24 +27,6 @@ struct AttributeCalculator {
         modifierValueBuffer.reserveCapacity(64)
 
         let mask = Modifier.$needsStackingCheck.higherBitsInclusive
-        let offensiveMask = context.disallowOffensiveMask
-        let assistanceMask = context.disallowAssistanceMask
-        let effectiveStates = context.effectiveStates
-
-        /// Whether the modifier is alive under the current states and masks.
-        func isAlive(_ modifier: Modifier) -> Bool {
-            if modifier.isProjected {
-                let bit = UInt8(1) << modifier.target.entityID.pilotID
-                if modifier.isOffensive && offensiveMask & bit != 0 { return false }
-                if modifier.isAssistance && assistanceMask & bit != 0 { return false }
-            }
-            let minState: Entity.Module.State = modifier.minSourceState
-            guard minState > .offline else { return true }
-            var gateID = modifier.source.entityID
-            gateID.chargeID = 0 // a charge is gated by its parent module
-            return effectiveStates[Int(gateID.rawValue)] >= minState
-        }
-
         var i = context.modifiers.startIndex
         let end = context.modifiers.endIndex
 
@@ -63,7 +45,7 @@ struct AttributeCalculator {
             while j < end && (context.modifiers[j] & mask == groupingID) {
                 let modifier = context.modifiers[j]
                 j += 1
-                guard isAlive(modifier) else { continue }
+                guard context.isAlive(modifier) else { continue }
                 guard var value = context.attributes[modifier.source] ?? (sde[modifier.source.attributeID]?.defaultValue).map({Double($0)}) else {continue}
                 switch modifier.operation {
                 case .addRate, .subRate:
@@ -71,12 +53,8 @@ struct AttributeCalculator {
                     let milliseconds = context.attributes[.init(entityID: sourceEntityID, attributeID: .duration)] ??
                     context.attributes[.init(entityID: sourceEntityID, attributeID: .speed)] ?? 1000
                     value = milliseconds > 0 ? value / (milliseconds / 1000) : 0
-                case .preDiv, .postDiv:
-                    value = 1.0 / value
-                case .postPercent:
-                    value = 1 + value / 100
                 default:
-                    break
+                    value = operand(value, for: modifier.operation)
                 }
                 modifierValueBuffer.append(value)
             }
@@ -133,6 +111,19 @@ struct AttributeCalculator {
                 value = max(value, minValue)
             }
             context.attributes[targetKey] = value
+        }
+    }
+
+    /// The value a modifier applies with, for operations that do not depend on the source's
+    /// cycle time: divisions become multipliers, percentages become `1 + value / 100`.
+    static func operand(_ value: Double, for operation: DogmaSDE.Modifier.Operation) -> Double {
+        switch operation {
+        case .preDiv, .postDiv:
+            1.0 / value
+        case .postPercent:
+            1 + value / 100
+        default:
+            value
         }
     }
 }

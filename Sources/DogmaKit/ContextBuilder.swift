@@ -343,23 +343,11 @@ struct ContextBuilder {
                                              minSourceState: Entity.Module.State,
                                              options: DogmaSDE.EffectOptions,
                                              in session: borrowing DogmaEngine.Session) {
-        let charge = entity.id.category == .module ? session.entities[.charge(in: entity.id)] : nil
-
-        for slot in Self.warfareBuffSlots {
-            var rawID: Float? = nil
-            if let charge {
-                rawID = session.sde[charge.typeID]!.attributes[slot.id]?.load()
-            }
-            if (rawID ?? 0) == 0 {
-                rawID = session.sde[entity.typeID]!.attributes[slot.id]?.load()
-            }
-            guard let rawID, rawID > 0 else { continue }
-
-            let buffID = WarfareBuffID(rawValue: UInt16(rawID))
-            guard let buff = session.sde[buffID] else { continue }
+        Self.forEachWarfareBuff(of: entity, in: session) { buffID, valueAttributeID in
+            guard let buff = session.sde[buffID] else { return }
 
             let info = buff.info.load()
-            let source = Key(entityID: entity.id, attributeID: slot.value)
+            let source = Key(entityID: entity.id, attributeID: valueAttributeID)
             buff.modifiers.forEach {
                 emit($0.load(),
                      of: entity,
@@ -372,6 +360,38 @@ struct ContextBuilder {
                      in: session)
             }
         }
+    }
+
+    /// Calls `body` for each warfare buff the entity broadcasts, with the carrier attribute
+    /// that holds its value. The buff ID comes from base type attributes, the charge's first.
+    static func forEachWarfareBuff(of entity: Entity,
+                                   in session: borrowing DogmaEngine.Session,
+                                   _ body: (WarfareBuffID, AttributeID) -> Void) {
+        let charge = entity.id.category == .module ? session.entities[.charge(in: entity.id)] : nil
+
+        for slot in warfareBuffSlots {
+            var rawID: Float? = nil
+            if let charge {
+                rawID = session.sde[charge.typeID]!.attributes[slot.id]?.load()
+            }
+            if (rawID ?? 0) == 0 {
+                rawID = session.sde[entity.typeID]!.attributes[slot.id]?.load()
+            }
+            guard let rawID, rawID > 0 else { continue }
+            body(WarfareBuffID(rawValue: UInt16(rawID)), slot.value)
+        }
+    }
+
+    /// Whether the type carries a warfare buff marker effect (`gangBoost`, `environmentBoost`).
+    static func isWarfareBuffSource(_ type: DogmaSDE.TypeInfo.View) -> Bool {
+        var result = false
+        type.effects.forEach { effect in
+            switch effect.id.load() {
+            case .gangBoost, .environmentBoost: result = true
+            default: break
+            }
+        }
+        return result
     }
 
     /// Minimum source module state at which an effect of this category is alive.

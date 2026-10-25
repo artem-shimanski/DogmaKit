@@ -299,4 +299,108 @@ struct WarfareBuffTests {
         // (the modifiers are gated by *Command skills, which the generator does not require).
         #expect(isClose(strength, -30, relative: 1e-6), "strength = \(strength)")
     }
+
+    // MARK: - Read API
+
+    private func hullBuffs(_ engine: DogmaEngine, on hull: HullID) async -> [FitStats.WarfareBuff] {
+        await engine.evaluate { stats in stats[hull].warfareBuffs }
+    }
+
+    @Test("Hull.warfareBuffs lists the applied buffs with their source and value")
+    func hullListsAppliedBuffs() async throws {
+        let fleet = try await makeFleet([.shieldBurst(.shieldExtensionCharge), .plain()])
+        let burst = fleet.bursts[0]!
+        let strength = await buffStrength(fleet.engine, burst: burst)
+
+        for hull in [Self.hullID(1), Self.hullID(2)] {
+            let buffs = await hullBuffs(fleet.engine, on: hull)
+            let buff = try #require(buffs.first { $0.id == 12 }, "buffs = \(buffs.map(\.id))")
+            #expect(isClose(buff.value, strength), "value = \(buff.value), strength = \(strength)")
+            #expect(buff.operation == .postPercent)
+            #expect(buff.aggregateMode == .maximum)
+            #expect(buff.sources.map(\.entityID) == [burst.rawValue])
+            #expect(buff.sources.first?.typeID == .shieldCommandBurstII)
+        }
+    }
+
+    @Test("An inactive burst applies nothing but still reports what it broadcasts")
+    func inactiveBurstAppliesNothing() async throws {
+        let fleet = try await makeFleet([.shieldBurst(.shieldExtensionCharge, state: .online)])
+        let burst = fleet.bursts[0]!
+
+        let applied = await hullBuffs(fleet.engine, on: Self.hullID(1))
+        let broadcast = await fleet.engine.evaluate { stats in
+            stats[burst].warfareBuffs
+        }
+
+        #expect(applied.isEmpty, "applied = \(applied.map(\.id))")
+        #expect(broadcast.contains { $0.id == 12 }, "broadcast = \(broadcast.map(\.id))")
+    }
+
+    @Test("A burst without a charge broadcasts nothing")
+    func burstWithoutChargeBroadcastsNothing() async throws {
+        let fleet = try await makeFleet([.shieldBurst(nil)])
+        let burst = fleet.bursts[0]!
+        let broadcast = await fleet.engine.evaluate { stats in
+            stats[burst].warfareBuffs
+        }
+        #expect(broadcast.isEmpty)
+    }
+
+    @Test("Identical buffs from several boosters: the strongest source is first and sets the value",
+          arguments: [TypeID.shieldExtensionCharge, .shieldHarmonizingCharge])
+    func strongestSourceFirst(charge: TypeID) async throws {
+        let fleet = try await makeFleet([.shieldBurst(charge, skillLevel: 1),
+                                         .shieldBurst(charge, skillLevel: 5),
+                                         .plain()])
+        let weak = await buffStrength(fleet.engine, burst: fleet.bursts[0]!)
+        let strong = await buffStrength(fleet.engine, burst: fleet.bursts[1]!)
+
+        let buffs = await hullBuffs(fleet.engine, on: Self.hullID(3))
+        let broadcast = await fleet.engine.evaluate { [burst = fleet.bursts[1]!] stats in
+            stats[burst].warfareBuffs
+        }
+        let id = try #require(broadcast.first?.id)
+        let buff = try #require(buffs.first { $0.id == id })
+
+        #expect(buff.sources.map(\.entityID) == [fleet.bursts[1]!.rawValue, fleet.bursts[0]!.rawValue])
+        #expect(buff.sources.map(\.value) == [strong, weak])
+        #expect(buff.value == strong)
+    }
+
+    @Test("An inverted buff is displayed with the opposite sign")
+    func invertedBuffDisplayValue() async throws {
+        let fleet = try await makeFleet([.shieldBurst(.shieldHarmonizingCharge)])
+        let buffs = await hullBuffs(fleet.engine, on: Self.hullID(1))
+        let buff = try #require(buffs.first { $0.id == 10 })
+
+        #expect(buff.visibility == .inverted)
+        #expect(buff.value < 0)
+        #expect(buff.displayValue == -buff.value)
+    }
+
+    @Test("Environment buffs are listed on every hull and on the environment effect")
+    func environmentBuffs() async throws {
+        let engine = DogmaEngine()
+        let environmentID = try await engine.edit { fit -> EnvironmentID in
+            let id = try fit.environment.add(.darknessWeather1).id
+            for _ in 0..<2 {
+                let pilot = try fit.pilots.add(skillLevel: 5)
+                try pilot.hull.set(typeID: .rifter)
+            }
+            return id
+        }
+
+        let (broadcast, first, second) = await engine.evaluate { stats in
+            (stats[environmentID].warfareBuffs, stats[Self.hullID(1)].warfareBuffs, stats[Self.hullID(2)].warfareBuffs)
+        }
+
+        // Pinned SDE values: Darkness Weather 1 carries buff 97 at -30 and buff 98 at 50.
+        #expect(broadcast.map(\.id) == [97, 98])
+        #expect(broadcast.map(\.value) == [-30, 50])
+        for applied in [first, second] {
+            #expect(applied.map(\.id) == [97, 98])
+            #expect(applied.allSatisfy { $0.sources.map(\.entityID) == [environmentID.rawValue] })
+        }
+    }
 }

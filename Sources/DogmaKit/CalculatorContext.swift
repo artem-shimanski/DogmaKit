@@ -51,6 +51,23 @@ struct CalculatorContext: Sendable {
         set { effectiveStates[Int(id.rawValue)] = newValue }
     }
 
+    /// Whether the modifier applies under the current states and masks: its source is not
+    /// demoted below `minSourceState` (a charge is gated by its parent module) and a
+    /// projected modifier's target is not under a disallow mask.
+    @inline(__always)
+    func isAlive(_ modifier: Modifier) -> Bool {
+        if modifier.isProjected {
+            let bit = UInt8(1) << modifier.target.entityID.pilotID
+            if modifier.isOffensive && disallowOffensiveMask & bit != 0 { return false }
+            if modifier.isAssistance && disallowAssistanceMask & bit != 0 { return false }
+        }
+        let minState: Entity.Module.State = modifier.minSourceState
+        guard minState > .offline else { return true }
+        var gateID = modifier.source.entityID
+        gateID.chargeID = 0
+        return effectiveStates[Int(gateID.rawValue)] >= minState
+    }
+
     mutating func cleanUp() {
         modifiers.removeAll(keepingCapacity: true)
         disallowAssistanceMask = 0
