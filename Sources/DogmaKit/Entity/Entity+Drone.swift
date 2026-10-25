@@ -82,7 +82,7 @@ extension Entity.Drone {
     }
     
     @BitField<UInt8>
-    public struct Flags: Sendable {
+    public struct Flags: Sendable, Equatable {
         @Bit(1) public var isActive: Bool
         @Bit(1) public var isKamikaze: Bool
         @Bit(1) public var isAssistance: Bool

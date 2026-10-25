@@ -8,11 +8,12 @@
 import Foundation
 
 extension FitStats {
+    @Snapshottable
     public struct Module: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: ModuleID
         @inlinable var entityID: EntityID {id.rawValue}
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
         
         @inlinable
         @_lifetime(borrow session)
@@ -72,6 +73,13 @@ extension FitStats {
             flags.maxAllowedState
         }
 
+        /// The module's target hull, or `nil`.
+        public var target: HullID? {
+            guard let target = entity.kind.module?.target, target != .invalid,
+                  session.pointee.entities.contains(target) else { return nil }
+            return HullID(rawValue: target)
+        }
+
         /// State requested by the user.
         public var state: Entity.Module.State {
             entity.kind.module!.state
@@ -105,6 +113,7 @@ extension FitStats {
             attributes[.serviceModuleFuelOnlineAmount] ?? 0
         }
         
+        @SnapshotNested
         public var charge: Charge? {
             @_lifetime(borrow self)
             get {
@@ -148,6 +157,13 @@ extension FitStats {
             session.pointee.baseTypeID(of: entityID)
         }
 
+        /// The module's mutation rolls; empty if it is not mutated.
+        public var rolls: [MutationRoll] {
+            var rolls: [MutationRoll] = []
+            forEachRoll { rolls.append($0) }
+            return rolls
+        }
+
         /// Iterates the module's rolls. Mutaplasmid attributes without a roll report the
         /// base value (multiplier 1.0).
         public func forEachRoll(_ body: (MutationRoll) -> Void) {
@@ -168,6 +184,7 @@ extension FitStats {
         }
         
         /// Cycle time, seconds, using the current read's reload policy.
+        @SnapshotField
         public func cycleTime() -> Double {
             cycleTime(reload: session.pointee.reload)
         }
@@ -210,7 +227,7 @@ extension FitStats {
         }
 
         /// A module's repair rate.
-        public struct Repair: Sendable {
+        public struct Repair: Sendable, Hashable {
             /// Repaired layer.
             public var kind: RepairKind
             /// `true` for remote reps (repairs the target, not the own hull).
@@ -223,6 +240,7 @@ extension FitStats {
         /// The per-cycle amount is divided by `cycleTime()`, so ancillary repairers spread
         /// the reload over the cycle, while `.ignored` gives the peak rate. Mutadaptive
         /// repairers are multiplied by `spool(.repair)`.
+        @SnapshotField
         public func repair() -> Repair? {
             repair(reload: session.pointee.reload)
         }
@@ -269,6 +287,7 @@ extension FitStats {
         }
 
         /// Capacitor use, GJ/s. Uses `ReloadPolicy.forCapacitor`.
+        @SnapshotField
         public func capUse() -> Double {
             capUse(reload: session.pointee.reload.forCapacitor)
         }
@@ -437,8 +456,8 @@ extension FitStats {
                                  reload: session.pointee.reload.forCapacitor)
         }
         
-        public var volleyDamage: DamageVector {
-            guard effectiveState >= .active else {return .zero}
+        /// Volley of one cycle regardless of state; zero for modules that deal no damage.
+        private var rawVolleyDamage: DamageVector {
             func damage(with attributes: EntityAttributes) -> DamageVector {
                 DamageVector(em: attributes[.emDamage] ?? 0,
                              thermal: attributes[.thermalDamage] ?? 0,
@@ -456,64 +475,69 @@ extension FitStats {
             let spoolFactor = spoolMultiplier(.damage)
             return (multiplier > 0 ? volley * multiplier : volley) * spoolFactor
         }
-        
-        func turretRelativeDPS(to target: Target) -> Double {
-            WeaponMath.turretRelativeDPS(accuracyScore: accuracyScore,
-                                        signatureResolution: signatureResolution,
-                                        optimal: optimal,
-                                        falloff: falloff,
-                                        to: target)
+
+        public var volleyDamage: DamageVector {
+            guard effectiveState >= .active else {return .zero}
+            return rawVolleyDamage
         }
 
-        func missileRelativeDPS(to target: Target) -> Double {
-            guard let charge, optimal >= target.range else {return 0}
+        /// Damage output of the module, or `nil` if it deals no damage. `volley` is zero
+        /// while the module is not active; cycle time follows the read's reload policy.
+        public var weapon: Weapon? {
+            let volley = rawVolleyDamage
+            guard volley != .zero else { return nil }
+            return weapon(volley: effectiveState >= .active ? volley : .zero)
+        }
 
-            if target.velocity > 0 {
-                let missileEntityVelocityMultiplier = attributes[.missileEntityVelocityMultiplier, default: .sde]
-                let maxVelocity = (charge.attributes[.maxVelocity] ?? 0) * missileEntityVelocityMultiplier
-                if maxVelocity < target.velocity {
-                    return 0
+        private func weapon(volley: DamageVector) -> Weapon {
+            switch hardpoint {
+            case .none:
+                return Weapon(application: .rangeGate,
+                              volley: volley,
+                              cycleTime: cycleTime(),
+                              optimal: optimal)
+            case .turret:
+                return Weapon(application: .turret,
+                              volley: volley,
+                              cycleTime: cycleTime(),
+                              optimal: optimal,
+                              falloff: falloff,
+                              accuracyScore: accuracyScore,
+                              signatureResolution: signatureResolution)
+            case .launcher:
+                guard let charge else {
+                    return Weapon(application: .missile, volley: volley, cycleTime: cycleTime())
                 }
+                let velocityMultiplier = attributes[.missileEntityVelocityMultiplier, default: .sde]
+                // `aoeDamageReductionFactor` on the charge is already the exponent;
+                // `aoeDamageReductionSensitivity` is not set on any SDE type.
+                return Weapon(application: .missile,
+                              volley: volley,
+                              cycleTime: cycleTime(),
+                              optimal: optimal,
+                              explosionRadius: charge.attributes[.aoeCloudSize, default: .sde],
+                              explosionVelocity: charge.attributes[.aoeVelocity, default: .sde],
+                              damageReductionExponent: charge.attributes[.aoeDamageReductionFactor] ?? 0,
+                              missileVelocity: (charge.attributes[.maxVelocity] ?? 0) * velocityMultiplier)
             }
-
-            // `aoeDamageReductionFactor` on the charge is already the exponent;
-            // `aoeDamageReductionSensitivity` is not set on any SDE type.
-            return WeaponMath.missileDamageFactor(
-                explosionRadius: charge.attributes[.aoeCloudSize, default: .sde],
-                explosionVelocity: charge.attributes[.aoeVelocity, default: .sde],
-                damageReductionExponent: charge.attributes[.aoeDamageReductionFactor] ?? 0,
-                to: target)
         }
-        
+
         /// Fraction of damage that reaches the target: tracking and range for turrets,
         /// explosion radius/velocity and flight range for missiles, a hard range gate for
         /// everything else. `target == .zero` means no target, multiplier 1.
         public func relativeDPS(to target: Target) -> Double {
-            guard target != .zero else {return 1}
-
-            switch hardpoint {
-            case .none:
-                return optimal >= target.range ? 1 : 0
-            case .launcher:
-                return missileRelativeDPS(to: target)
-            case .turret:
-                return turretRelativeDPS(to: target)
-            }
+            // An empty launcher has nothing to fire.
+            if hardpoint == .launcher && target != .zero && charge == nil { return 0 }
+            return weapon(volley: .zero).relativeDPS(to: target)
         }
 
         /// Volley adjusted for the target.
         public func volleyDamage(to target: Target) -> DamageVector {
-            let relative = relativeDPS(to: target)
-            guard relative > 0 else {return .zero}
-            return volleyDamage * relative
+            weapon?.volleyDamage(to: target) ?? .zero
         }
 
         public func dps(to target: Target) -> DamageVector {
-            let cycle = cycleTime()
-            guard cycle > 0 else {return .zero}
-            let relative = relativeDPS(to: target)
-            guard relative > 0 else {return .zero}
-            return volleyDamage / cycle * relative
+            weapon?.dps(to: target) ?? .zero
         }
         
         public var optimal: Double {
@@ -558,6 +582,7 @@ extension FitStats {
         /// Average yield, m³/s: `miningAmount` per cycle, including the expected critical
         /// bonus `miningCritChance · miningCritBonusYield`. `specialtyMiningAmount`
         /// is not added: the SDE only mirrors `miningAmount` into it for display.
+        @SnapshotField
         public func miningYield() -> Double {
             guard effectiveState >= .active else {return 0}
             let cycle = cycleTime()
@@ -610,6 +635,12 @@ extension FitStats {
         /// strength lives on the pilot (`FitStats.Pilot.probeScanStrength`).
         public var probeScanStrengthBonus: Double? {
             attributes[.scanStrengthBonus]
+        }
+
+        /// Warfare buffs the module broadcasts to the fleet while active, with its own values.
+        /// Empty for modules that are not buff sources and for bursts without a charge.
+        public var warfareBuffs: [FitStats.WarfareBuff] {
+            session.pointee.broadcastWarfareBuffs(of: entityID)
         }
 
         public func maxAngularVelocity(for targetSignature: Double, atHitChance hitChance: Double) -> Double {

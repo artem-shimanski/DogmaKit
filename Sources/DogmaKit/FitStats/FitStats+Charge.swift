@@ -6,11 +6,12 @@
 //
 
 extension FitStats {
+    @Snapshottable
     public struct Charge: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: ChargeID
         @inlinable var entityID: EntityID {id.rawValue}
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
         
         @inlinable
         @_lifetime(borrow session)
@@ -24,5 +25,7 @@ extension FitStats {
         var entity: Entity {
             session.pointee.entities[entityID]!
         }
+
+        @inlinable public var typeID: TypeID { entity.typeID }
     }
 }

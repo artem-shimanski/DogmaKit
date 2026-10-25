@@ -54,7 +54,7 @@ extension Mutation {
 }
 
 /// A roll in a form convenient for a mutation editor UI.
-public struct MutationRoll: BitwiseCopyable, Sendable {
+public struct MutationRoll: BitwiseCopyable, Sendable, Equatable {
     public var attributeID: AttributeID
     /// Current absolute value of the attribute on the mutated item.
     public var value: Double

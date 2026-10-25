@@ -23,10 +23,10 @@ import Foundation
 /// **Randomness.** Instead of rolling, the expected damage `mean += P·damage` and its variance
 /// `var += P·(1−P)·damage²` are accumulated, giving the typical burnout time and the spread
 /// around it (`Result.Module.burnoutTime(probability:)`).
-public struct HeatSimulator: Sendable {
+public struct HeatSimulator: Sendable, Equatable {
 
     /// An overloaded module: a source of heat and damage.
-    public struct Node: Sendable {
+    public struct Node: Sendable, Equatable {
         /// Position of the source in the rack.
         public var socket: Int
         /// Time between activations within a clip, seconds.
@@ -63,7 +63,7 @@ public struct HeatSimulator: Sendable {
     }
 
     /// A rack slot, occupied or empty.
-    public struct Socket: Sendable {
+    public struct Socket: Sendable, Equatable {
         /// Module ID, so results can be mapped back to the fit.
         public var id: ModuleID?
         /// Module HP. `0` means the slot is empty.
@@ -86,7 +86,7 @@ public struct HeatSimulator: Sendable {
     }
 
     /// A hi, med or low rack. Racks heat independently but share `Fs`.
-    public struct Rack: Sendable {
+    public struct Rack: Sendable, Equatable {
         public var slot: Entity.Module.Slot
         /// `heatCapacity{Hi|Med|Low} / 100`.
         public var capacity: Double

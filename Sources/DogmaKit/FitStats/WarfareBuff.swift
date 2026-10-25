@@ -44,42 +44,6 @@ extension FitStats {
     }
 }
 
-extension FitStats.Hull {
-    /// Warfare buffs currently applied to this hull and its modules, drones and charges,
-    /// sorted by ID. Only live sources count: a burst must be active and the hull must not
-    /// be under a disallow mask that blocks the buff.
-    public var warfareBuffs: [FitStats.WarfareBuff] {
-        let session = self.session
-        let context = session.pointee.context
-        let pilot = entityID.pilot
-
-        var sources: [WarfareBuffID: Set<AttributeKey>] = [:]
-        for modifier in context.modifiers where modifier.buffID.rawValue != 0 {
-            guard modifier.target.entityID.pilot == pilot, context.isAlive(modifier) else { continue }
-            sources[modifier.buffID, default: []].insert(modifier.source)
-        }
-
-        return sources
-            .sorted { $0.key.rawValue < $1.key.rawValue }
-            .compactMap { session.pointee.warfareBuff($0.key, from: $0.value) }
-    }
-}
-
-extension FitStats.Module {
-    /// Warfare buffs the module broadcasts to the fleet while active, with its own values.
-    /// Empty for modules that are not buff sources and for bursts without a charge.
-    public var warfareBuffs: [FitStats.WarfareBuff] {
-        session.pointee.broadcastWarfareBuffs(of: entityID)
-    }
-}
-
-extension FitStats.EnvironmentEffect {
-    /// Warfare buffs the environment effect applies to every hull in the session.
-    public var warfareBuffs: [FitStats.WarfareBuff] {
-        session.pointee.broadcastWarfareBuffs(of: entityID)
-    }
-}
-
 extension DogmaEngine.Session {
 
     /// Buffs the entity broadcasts, one source each.

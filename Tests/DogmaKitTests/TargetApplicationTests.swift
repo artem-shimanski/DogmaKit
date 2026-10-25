@@ -146,7 +146,7 @@ struct TargetApplicationTests {
 
     /// DPS of a single fighter weapon channel.
     private static func channelDPS(_ engine: DogmaEngine,
-                                   weapon: FitStats.Drone.Weapon,
+                                   weapon: FitStats.Drone.Channel,
                                    targets: [Target]) async -> [Double] {
         await engine.evaluate { stats in
             let hull = stats[Self.firstHull]

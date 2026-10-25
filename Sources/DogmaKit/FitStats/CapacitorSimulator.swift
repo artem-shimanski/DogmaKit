@@ -17,10 +17,10 @@ import Foundation
 /// The simulation is event-driven, starting from a full capacitor: every node first fires
 /// at `t = 0`, activations within a clip are `cycleTime` apart, and after `clipSize`
 /// activations a discrete `reloadTime` gap is inserted.
-public struct CapacitorSimulator: Sendable {
+public struct CapacitorSimulator: Sendable, Equatable {
 
     /// A periodic event affecting the capacitor.
-    public struct Node: Sendable {
+    public struct Node: Sendable, Equatable {
         /// Time between activations within a clip, seconds (raw cycle + reactivation).
         public var cycleTime: Double
         

@@ -174,7 +174,7 @@ extension Entity.Module {
     }
     
     @BitField<UInt8>
-    public struct Flags: Sendable {
+    public struct Flags: Sendable, Equatable {
         @Bit(1) public var canBeOnline: Bool
         @Bit(1) public var canBeActive: Bool
         @Bit(1) public var canBeOverloaded: Bool

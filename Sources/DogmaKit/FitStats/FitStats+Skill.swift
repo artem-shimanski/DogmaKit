@@ -7,11 +7,12 @@
 
 extension FitStats {
     /// Read-only view of a pilot's skill. Like `Fit.Skill`, but `level` is read-only.
+    @Snapshottable
     public struct Skill: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: SkillID
         @inlinable var entityID: EntityID {id.rawValue}
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
 
         @inlinable
         @_lifetime(borrow session)

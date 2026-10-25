@@ -8,7 +8,7 @@
 import simd
 
 @frozen
-public struct Resistances: Sendable {
+public struct Resistances: Sendable, Equatable {
     public typealias Storage = simd_double3x4
     public var storage: Storage
     

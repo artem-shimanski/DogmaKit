@@ -5,6 +5,7 @@
 //  Created by Artem Shimanski on 05.07.2026.
 //
 
+@Snapshottable
 public struct FitStats: ~Escapable {
     @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
 
@@ -14,6 +15,7 @@ public struct FitStats: ~Escapable {
         self.session = session
     }
     
+    @SnapshotNested
     public var pilots: Pilots {
         @_lifetime(borrow self) get {
             Pilots(stats: self)
@@ -21,6 +23,7 @@ public struct FitStats: ~Escapable {
     }
 
     /// The simulation environment (beacons, weather, storms).
+    @SnapshotNested
     public var environment: Environment {
         @_lifetime(borrow self) get {
             Environment(stats: self)

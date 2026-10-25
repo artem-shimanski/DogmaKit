@@ -33,18 +33,28 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/artem-shimanski/FlatBin.git", .upToNextMinor(from: "0.1.0")),
-        .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.0"))
+        .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.0")),
+        .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0")
     ],
     targets: [
         .target(
             name: "DogmaKit",
             dependencies: [
                 "DogmaModels",
+                "DogmaKitMacros",
                 .product(name: "BitField", package: "BitField")
             ],
             resources: [.process("Resources")],
             swiftSettings: [
                 .enableExperimentalFeature("Lifetimes")
+            ]
+        ),
+        // `@Snapshottable`: generates `FitStats` node snapshots. Internal to `DogmaKit`.
+        .macro(
+            name: "DogmaKitMacros",
+            dependencies: [
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
             ]
         ),
         .target(name: "DogmaIDs"),
@@ -96,6 +106,13 @@ let package = Package(
         .testTarget(
             name: "DogmaKitTests",
             dependencies: ["DogmaKit", "DogmaText"]
+        ),
+        .testTarget(
+            name: "DogmaKitMacrosTests",
+            dependencies: [
+                "DogmaKitMacros",
+                .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax")
+            ]
         ),
         .testTarget(
             name: "DogmaKitIOTests",

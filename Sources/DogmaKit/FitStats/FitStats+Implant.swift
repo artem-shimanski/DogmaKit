@@ -7,11 +7,12 @@
 
 extension FitStats {
     /// Read-only view of an implant. Implants have no derived stats, only attributes and a slot.
+    @Snapshottable
     public struct Implant: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: ImplantID
         @inlinable var entityID: EntityID {id.rawValue}
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
 
         @inlinable
         @_lifetime(borrow session)

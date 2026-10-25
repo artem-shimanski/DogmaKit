@@ -8,11 +8,12 @@
 extension FitStats {
     /// Read-only view of an environment effect: its type and `attributes` (including
     /// `warfareBuff{N}Value`, the effective buff strength).
+    @Snapshottable
     public struct EnvironmentEffect: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: EnvironmentID
         @inlinable var entityID: EntityID { id.rawValue }
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
 
         @inlinable
         @_lifetime(borrow session)
@@ -30,5 +31,10 @@ extension FitStats {
         @inlinable public var typeID: TypeID { entity.typeID }
         @inlinable public var groupID: GroupID { entity.groupID }
         @inlinable public var categoryID: CategoryID { entity.categoryID }
+
+        /// Warfare buffs the environment effect applies to every hull in the session.
+        public var warfareBuffs: [FitStats.WarfareBuff] {
+            session.pointee.broadcastWarfareBuffs(of: entityID)
+        }
     }
 }

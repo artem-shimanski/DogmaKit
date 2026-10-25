@@ -7,11 +7,12 @@
 
 extension FitStats {
     /// Read-only view of a booster. Like `FitStats.Implant`, keyed by the `boosterness` slot.
+    @Snapshottable
     public struct Booster: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: BoosterID
         @inlinable var entityID: EntityID {id.rawValue}
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
 
         @inlinable
         @_lifetime(borrow session)

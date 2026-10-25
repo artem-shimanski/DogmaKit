@@ -8,7 +8,7 @@
 import simd
 
 @frozen
-public struct Resonance: Sendable {
+public struct Resonance: Sendable, Equatable {
     public typealias Storage = simd_double3x4
     public var storage: Storage
     

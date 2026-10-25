@@ -53,7 +53,7 @@ extension Entity.Charge {
         }
     }
 
-    public enum Size: UInt8 {
+    public enum Size: UInt8, Sendable {
         case none = 0
         case small = 1
         case medium = 2

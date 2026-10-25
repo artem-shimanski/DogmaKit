@@ -20,12 +20,13 @@ extension Entity.Module.Hardpoint {
 
 extension FitStats {
 
+    @Snapshottable
     public struct Hull: ~Escapable {
         @usableFromInline internal let session: UnsafePointer<DogmaEngine.Session>
         public let id: HullID
         @inlinable var entityID: EntityID {id.rawValue}
         
-        public let attributes: EntityAttributes
+        @SnapshotIgnored public let attributes: EntityAttributes
         
         @inlinable
         @_lifetime(borrow session)
@@ -44,12 +45,14 @@ extension FitStats {
         @inlinable public var groupID: GroupID { entity.groupID }
         @inlinable public var categoryID: CategoryID { entity.categoryID }
 
+        @SnapshotNested
         public var modules: Modules {
             @_lifetime(borrow self) get {
                 Modules(hull: self)
             }
         }
 
+        @SnapshotNested
         public var drones: Drones {
             @_lifetime(borrow self) get {
                 Drones(hull: self)
@@ -89,23 +92,27 @@ extension FitStats {
 
         private static let damageSlots: [Entity.Module.Slot] = [.hi, .med, .low]
 
-        private func forEachDamagingModule(in sources: DamageSource, _ body: (borrowing Module) -> Void) {
-            guard !sources.isDisjoint(with: .modules) else { return }
+        /// Damaging modules in hi/med/low racks and every channel of the hull's drones and
+        /// fighters. Modules fire only when `effectiveState >= .active`, drones only when
+        /// `isActive`; others are listed with a zero volley.
+        public var armament: Armament {
+            var entries: [Armament.Entry] = []
             for slot in Self.damageSlots {
                 modules.forEach(in: slot) { module in
-                    guard sources.contains(module.hardpoint.damageSource) else { return }
-                    body(module)
+                    guard let weapon = module.weapon else { return }
+                    entries.append(.init(source: module.hardpoint.damageSource,
+                                         entityID: module.id.rawValue,
+                                         weapon: weapon))
                 }
             }
-        }
-
-        private func forEachDamagingDrone(in sources: DamageSource, _ body: (borrowing Drone) -> Void) {
-            guard !sources.isDisjoint(with: .deployables) else { return }
             drones.forEach { drone in
                 let source: DamageSource = drone.squadron == .none ? .drones : .fighters
-                guard sources.contains(source) else { return }
-                body(drone)
+                let entityID = drone.id.rawValue
+                drone.forEachWeapon { channel, weapon in
+                    entries.append(.init(source: source, entityID: entityID, channel: channel, weapon: weapon))
+                }
             }
+            return Armament(entries: entries)
         }
 
         /// Total DPS of the hull from the given source categories.
@@ -113,20 +120,14 @@ extension FitStats {
         /// Modules count only when `effectiveState >= .active`, drones only when `isActive`.
         public func dps(from sources: DamageSource = .all,
                         to target: Target = .zero) -> DamageVector {
-            var result = DamageVector.zero
-            forEachDamagingModule(in: sources) { result += $0.dps(to: target) }
-            forEachDamagingDrone(in: sources) { result += $0.dps(to: target) }
-            return result
+            armament.dps(from: sources, to: target)
         }
 
         /// Total volley (alpha strike) of the hull from the given source categories:
         /// damage of one cycle of every weapon fired at once.
         public func volleyDamage(from sources: DamageSource = .all,
                                  to target: Target = .zero) -> DamageVector {
-            var result = DamageVector.zero
-            forEachDamagingModule(in: sources) { result += $0.volleyDamage(to: target) }
-            forEachDamagingDrone(in: sources) { result += $0.volleyDamage(to: target) }
-            return result
+            armament.volleyDamage(from: sources, to: target)
         }
 
         public var cpu: Resource {
@@ -216,6 +217,23 @@ extension FitStats {
             let total = Int(attributes[slot.attributeID] ?? 0)
             let used = modules.count(in: slot)
             return SlotCapacity(used: used, total: total)
+        }
+
+        /// `capacity(of:)` for every slot.
+        public var slots: [Entity.Module.Slot: SlotCapacity] {
+            var slots: [Entity.Module.Slot: SlotCapacity] = [:]
+            for slot in Entity.Module.Slot.allCases {
+                slots[slot] = capacity(of: slot)
+            }
+            return slots
+        }
+
+        public var turretHardpoints: SlotCapacity {
+            capacity(of: .turret)
+        }
+
+        public var launcherHardpoints: SlotCapacity {
+            capacity(of: .launcher)
         }
 
         public func capacity(of hardpoint: Entity.Module.Hardpoint) -> SlotCapacity {
@@ -361,6 +379,7 @@ extension FitStats {
         /// projected effects (neutralizers, nosferatu, remote capacitor transmitters).
         /// Uses `ReloadPolicy.forCapacitor`: ignoring reloads would give a cap booster
         /// infinite charge.
+        @SnapshotField
         public func capacitorSimulator() -> CapacitorSimulator {
             let capacity = attributes[.capacitorCapacity] ?? 0
             let rechargeTime = (attributes[.rechargeRate, default: .sde]) / 1000
@@ -422,6 +441,7 @@ extension FitStats {
         /// Overheat simulator. Collects full hi/med/low racks, not just overloaded modules:
         /// the slot fill ratio is ship-wide and includes rig slots in the denominator.
         /// Modules whose socket is outside the rack (overfitted) are skipped.
+        @SnapshotField
         public func heatSimulator() -> HeatSimulator {
             var racks: [HeatSimulator.Rack] = []
             racks.reserveCapacity(3)
@@ -460,38 +480,45 @@ extension FitStats {
             heatSimulator().run()
         }
 
-        // MARK: - Tank
+        /// Warfare buffs currently applied to this hull and its modules, drones and charges,
+        /// sorted by ID. Only live sources count: a burst must be active and the hull must not
+        /// be under a disallow mask that blocks the buff.
+        public var warfareBuffs: [FitStats.WarfareBuff] {
+            let session = self.session
+            let context = session.pointee.context
+            let pilot = entityID.pilot
 
-        /// One repair contribution. `capPerSecond == 0` means the repairer does not use
-        /// this ship's capacitor (incoming remote reps, capless reps); `sustainableTank`
-        /// never throttles those.
-        struct Repairer {
-            var kind: Module.RepairKind
-            var hpPerSecond: Double
-            var capPerSecond: Double
+            var sources: [WarfareBuffID: Set<AttributeKey>] = [:]
+            for modifier in context.modifiers where modifier.buffID.rawValue != 0 {
+                guard modifier.target.entityID.pilot == pilot, context.isAlive(modifier) else { continue }
+                sources[modifier.buffID, default: []].insert(modifier.source)
+            }
 
-            /// HP per unit of capacitor; the greedy order in `sustainableTank`.
-            var effectivity: Double { hpPerSecond / capPerSecond }
+            return sources
+                .sorted { $0.key.rawValue < $1.key.rawValue }
+                .compactMap { session.pointee.warfareBuff($0.key, from: $0.value) }
         }
+
+        // MARK: - Tank
 
         /// All repairs applied to this hull: own active local repairers plus incoming
         /// remote reps. Capacitor use is always computed with `reload.forCapacitor`.
-        func repairers(reload: ReloadPolicy) -> [Repairer] {
-            var result: [Repairer] = []
+        func tankProfile(reload: ReloadPolicy) -> TankProfile {
+            var repairers: [TankProfile.Repairer] = []
             for slot in Self.activeModuleSlots {
                 modules.forEach(in: slot) { module in
                     guard let repair = module.repair(reload: reload), !repair.isRemote else { return }
-                    result.append(Repairer(kind: repair.kind,
+                    repairers.append(.init(kind: repair.kind,
                                            hpPerSecond: repair.hpPerSecond,
                                            capPerSecond: max(0, module.capUse(reload: reload.forCapacitor))))
                 }
             }
-            appendIncomingRepairers(into: &result, reload: reload)
-            return result
+            appendIncomingRepairers(into: &repairers, reload: reload)
+            return TankProfile(passiveShield: passiveShieldRecharge, repairers: repairers)
         }
 
         /// Incoming remote reps are skipped when the target disallows assistance.
-        private func appendIncomingRepairers(into repairers: inout [Repairer], reload: ReloadPolicy) {
+        private func appendIncomingRepairers(into repairers: inout [TankProfile.Repairer], reload: ReloadPolicy) {
             let bit = UInt8(1) << entityID.pilotID
             guard (session.pointee.context.disallowAssistanceMask & bit) == 0 else { return }
             let myPilot = id.pilot
@@ -502,9 +529,9 @@ extension FitStats {
                           target != .invalid, target.hull == entityID else { continue }
                     let module = Module(session: session, id: ModuleID(rawValue: moduleID))
                     guard let repair = module.repair(reload: reload), repair.isRemote else { continue }
-                    repairers.append(Repairer(kind: repair.kind,
-                                              hpPerSecond: repair.hpPerSecond,
-                                              capPerSecond: 0))
+                    repairers.append(.init(kind: repair.kind,
+                                           hpPerSecond: repair.hpPerSecond,
+                                           capPerSecond: 0))
                 }
             }
         }
@@ -519,17 +546,16 @@ extension FitStats {
         /// Hull tank, HP/s: passive shield regen plus all active local and incoming
         /// remote repairers. Respects the reload policy: ancillary repairers spread the
         /// reload over the cycle, `.ignored` gives burst tank.
+        @SnapshotField
         public func tank() -> Tank {
-            tank(repairers: repairers(reload: session.pointee.reload))
+            tankProfile(reload: session.pointee.reload).tank
         }
 
-        private func tank(repairers: [Repairer]) -> Tank {
-            var result = Tank(passiveShield: passiveShieldRecharge,
-                              shieldRepair: 0, armorRepair: 0, hullRepair: 0)
-            for repairer in repairers {
-                result[repair: repairer.kind] += repairer.hpPerSecond
-            }
-            return result
+        /// Tank inputs under `ReloadPolicy.forCapacitor`: the input of `sustainableTank`.
+        /// Equals the profile behind `tank()` unless the read ignores reloads.
+        @SnapshotField
+        public func tankProfile() -> TankProfile {
+            tankProfile(reload: session.pointee.reload.forCapacitor)
         }
 
         /// Tank the capacitor can sustain indefinitely. Equals `tank` when the capacitor
@@ -542,28 +568,7 @@ extension FitStats {
 
         /// Same as `sustainableTank()`, reusing an already computed `capacitor()` result.
         public func sustainableTank(capacitor cap: CapacitorSimulator.Result) -> Tank {
-            let repairers = repairers(reload: session.pointee.reload.forCapacitor)
-            var result = tank(repairers: repairers)
-            guard !cap.isStable else { return result }
-
-            var capUse = cap.averageDrain
-            let capRecharge = cap.peakRecharge
-
-            var throttled = repairers.filter { $0.capPerSecond > 0 }
-            for repairer in throttled {
-                result[repair: repairer.kind] -= repairer.hpPerSecond
-                capUse -= repairer.capPerSecond
-            }
-
-            throttled.sort { $0.effectivity > $1.effectivity }
-            for repairer in throttled {
-                if capUse > capRecharge { break }
-                let sustainability = min(1.0, (capRecharge - capUse) / repairer.capPerSecond)
-                result[repair: repairer.kind] += repairer.hpPerSecond * sustainability
-                capUse += repairer.capPerSecond
-            }
-
-            return result
+            tankProfile().sustainableTank(capacitor: cap)
         }
     }
     

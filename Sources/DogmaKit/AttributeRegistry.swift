@@ -253,6 +253,22 @@ struct AttributeRegistry<Value: Sendable>: Sendable {
     }
 }
 
+extension AttributeRegistry {
+    /// Iterates the values stored for one entity, in bucket order. The entity must have a
+    /// bucket in the current pass (see `reset(for:)`).
+    @inlinable
+    func forEach(in entityID: EntityID, _ body: (AttributeID, Value) -> Void) {
+        let bucket = self[bucket: entityID]
+        guard bucket.offset >= 0 else { return }
+        let offset = Int(bucket.offset)
+        for idx in offset..<(offset + Int(bucket.size)) {
+            let node = keys[idx]
+            guard !node.isEmpty && !node.isDeleted else { continue }
+            body(node.key.attributeID, values[Int(node.index)].value)
+        }
+    }
+}
+
 extension AttributeRegistry: Sequence {
     @usableFromInline
     struct Iterator: IteratorProtocol {

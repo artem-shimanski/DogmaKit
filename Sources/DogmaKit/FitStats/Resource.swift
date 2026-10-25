@@ -6,7 +6,7 @@
 //
 
 @frozen
-public struct Resource: Sendable {
+public struct Resource: Sendable, Hashable {
     public var used: Double
     public var total: Double
 
@@ -24,7 +24,7 @@ public struct Resource: Sendable {
 }
 
 @frozen
-public struct SlotCapacity: Sendable {
+public struct SlotCapacity: Sendable, Hashable {
     public var used: Int
     public var total: Int
 
