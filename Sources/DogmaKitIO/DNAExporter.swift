@@ -6,7 +6,11 @@
 //  merged. One line per fit. The format has no names, states, sockets, implants, boosters or mutations.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 struct DNAExporter {

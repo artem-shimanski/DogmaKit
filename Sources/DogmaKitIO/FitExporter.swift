@@ -3,7 +3,11 @@
 //  DogmaKitIO
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 /// Exports the native `FitDocument` to public formats; the reverse of `FitImporter`.

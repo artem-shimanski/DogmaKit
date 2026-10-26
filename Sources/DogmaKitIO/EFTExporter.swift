@@ -8,7 +8,11 @@
 //  sockets.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 struct EFTExporter {

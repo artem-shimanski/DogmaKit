@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 24.07.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 extension FitStats {
     /// Read-only view of a drone or fighter stack. Unlike modules, drones have no state

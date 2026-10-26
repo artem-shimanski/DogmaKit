@@ -12,7 +12,11 @@
 //  category, so the parser is flat.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 struct DNAImporter {
@@ -113,7 +117,7 @@ struct DNAImporter {
 
     /// Strips the chat-link wrapper `<url=fitting:...>Name</url>` if present.
     private static func unwrap(_ text: String) -> String? {
-        guard let range = text.range(of: "fitting:") else {
+        guard let range = text.firstRange(of: "fitting:") else {
             return text.isEmpty ? nil : text
         }
         let tail = text[range.upperBound...]

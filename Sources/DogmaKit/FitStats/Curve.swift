@@ -3,7 +3,13 @@
 //  DogmaKit
 //
 
+#if os(WASI)
+import FoundationEssentials
+// Math functions come from libc; elsewhere Foundation re-exports it.
+import WASILibc
+#else
 import Foundation
+#endif
 
 /// A sampled function of one variable, ready for plotting: DPS by range or target velocity,
 /// lock time by signature radius, capacitor level by time. Points are sorted by `x`.

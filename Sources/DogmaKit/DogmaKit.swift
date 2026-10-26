@@ -1,4 +1,8 @@
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 @_exported import DogmaModels
 import BitField
 import FlatBin
@@ -74,7 +78,7 @@ public actor DogmaEngine {
     struct Session {
         @usableFromInline internal var entities = EntityStore()
         @usableFromInline internal var context = CalculatorContext()
-        @usableFromInline internal let sde = try! SDE(data: Data(contentsOf: Bundle.module.url(forResource: "sde", withExtension: "bin")!, options: [.mappedIfSafe]))
+        @usableFromInline internal let sde = try! SDE(data: SDEFile.load())
         @usableFromInline internal var isDirty = true
         /// Read-layer options (see `FitStats.Options`); not calculation inputs, so changing
         /// them does not invalidate the context.

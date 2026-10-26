@@ -5,7 +5,13 @@
 //  Created by Artem Shimanski on 01.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+// Math functions come from libc; elsewhere Foundation re-exports it.
+import WASILibc
+#else
 import Foundation
+#endif
 
 /// Overheat simulator: how long modules survive while overloaded.
 ///

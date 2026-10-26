@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 27.07.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 /// Navigation snapshot of a hull. Stores only raw values; derived ones (align time, warp
 /// range) are computed on demand, so `applying(_:)` / `removing(_:)` stay consistent.

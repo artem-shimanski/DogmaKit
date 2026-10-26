@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 08.07.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 public struct Target: Sendable, Equatable {
     public var angularVelocity: Double

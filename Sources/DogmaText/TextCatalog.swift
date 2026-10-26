@@ -5,7 +5,12 @@
 //  Created by Artem Shimanski on 02.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+import DogmaTextResources
+#endif
 import FlatBin
 import DogmaModels
 
@@ -26,11 +31,15 @@ public struct TextCatalog: Sendable {
         decoder = FlatDecoder(data: data)
     }
 
-    /// English catalog from the target's resources.
+    /// English catalog from the `DogmaTextResources` bundle, or on WebAssembly from `text-en.bin` next to the
+    /// executable.
     public static func english() throws -> TextCatalog {
-        guard let url = Bundle.module.url(forResource: "text-en", withExtension: "bin") else {
-            throw CocoaError(.fileNoSuchFile)
-        }
+        #if os(WASI)
+        let url: URL? = executableDirectory.appending(path: "text-en.bin")
+        #else
+        let url = DogmaTextResources.english
+        #endif
+        guard let url else { throw CocoaError(.fileNoSuchFile) }
         return try TextCatalog(contentsOf: url)
     }
 

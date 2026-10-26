@@ -8,7 +8,11 @@
 //  Spec: https://developers.eveonline.com/docs/guides/fitting/
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 struct EFTImporter {

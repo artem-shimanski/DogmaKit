@@ -3,7 +3,11 @@
 //  DogmaKit
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 /// Damage output of one weapon: a module, or one channel of a drone or fighter squadron
 /// (`FitStats.Drone.Channel`). A snapshot of the attributes the hit math needs, so damage

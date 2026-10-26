@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 02.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaModels
 
 /// Read-only type lookup over the SDE database that does not require an engine, e.g. for
@@ -19,10 +23,7 @@ public struct TypeCatalog: Sendable {
     private let sde: SDE
 
     public init() throws {
-        guard let url = Bundle.module.url(forResource: "sde", withExtension: "bin") else {
-            throw CocoaError(.fileNoSuchFile)
-        }
-        self.sde = SDE(data: try Data(contentsOf: url, options: [.mappedIfSafe]))
+        self.sde = SDE(data: try SDEFile.load())
     }
 
     public func contains(_ typeID: TypeID) -> Bool {

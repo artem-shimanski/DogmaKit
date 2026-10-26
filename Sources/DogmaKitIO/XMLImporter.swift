@@ -19,13 +19,28 @@
 //  Unlike EFT, the slot is explicit, so gaps in racks are restored exactly.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
-#if canImport(FoundationXML)
+#endif
+#if canImport(FoundationXML) && !os(WASI)
 // Outside Apple platforms `XMLParser` lives in a separate module.
 import FoundationXML
 #endif
 import DogmaKit
 
+#if os(WASI)
+/// `XMLParser` exists only in full Foundation, which a WebAssembly build leaves out; XML finds no fits there.
+struct XMLImporter {
+
+    init(_ context: FitImporter) {}
+
+    func parse(_ text: String) -> ImportResult {
+        ImportResult(warnings: [.noFitsFound])
+    }
+}
+#else
 struct XMLImporter {
 
     private let context: FitImporter
@@ -195,3 +210,4 @@ struct XMLImporter {
         }
     }
 }
+#endif

@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 10.04.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import FlatBin
 
 @FlatCodable

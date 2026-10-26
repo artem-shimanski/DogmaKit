@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 18.06.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import BitField
 import DogmaModels
 

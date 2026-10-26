@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 27.07.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 /// Outgoing jamming of one ECM module, built from `scan*StrengthBonus` attributes (absolute
 /// strengths on jammers) and the module's optimal/falloff. See `FitStats.Module.ecm`.

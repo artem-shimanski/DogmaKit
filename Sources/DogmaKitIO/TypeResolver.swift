@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 02.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 // The `TypeResolver` protocol itself is declared in `DogmaModels` so that `DogmaText.TextCatalog` can implement it
@@ -33,6 +37,6 @@ public struct DictionaryTypeResolver: TypeResolver {
     }
 
     private static func normalized(_ name: String) -> String {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        name.trimmed.lowercased()
     }
 }

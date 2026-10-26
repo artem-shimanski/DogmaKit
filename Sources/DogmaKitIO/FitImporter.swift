@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 02.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaKit
 
 /// Imports fits from public formats into the native `FitDocument`.
@@ -67,7 +71,7 @@ public struct FitImporter: Sendable {
 
     /// The format is detected from the first non-empty character and the structure of the first line; these formats have no signature.
     public static func detect(_ text: String) -> Format? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = text.trimmed
         guard let first = trimmed.first else { return nil }
         // A chat link `<url=fitting:...>` starts with an angle bracket but is DNA, not XML, so check it first.
         if trimmed.contains("fitting:") { return .dna }
@@ -119,13 +123,5 @@ public struct FitImporter: Sendable {
         FitDocument(name: name,
                     pilots: [.init(skills: .init(default: skillLevel),
                                    ship: .init(type: typeID))])
-    }
-}
-
-// MARK: - String helpers
-
-extension StringProtocol {
-    var trimmed: String {
-        trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

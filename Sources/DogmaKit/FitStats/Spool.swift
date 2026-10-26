@@ -3,7 +3,13 @@
 //  DogmaKit
 //
 
+#if os(WASI)
+import FoundationEssentials
+// Math functions come from libc; elsewhere Foundation re-exports it.
+import WASILibc
+#else
 import Foundation
+#endif
 
 /// What spools up on a module; selects the attribute pair.
 public enum SpoolKind: Sendable, Hashable, CaseIterable {

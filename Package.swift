@@ -3,6 +3,11 @@
 import PackageDescription
 import CompilerPluginSupport
 
+/// Every platform but WebAssembly, which has no `Bundle`: resource targets are linked only on these.
+let platformsWithBundle: [Platform] = [
+    .macOS, .macCatalyst, .iOS, .tvOS, .watchOS, .visionOS, .driverKit, .linux, .windows, .android, .openbsd
+]
+
 let package = Package(
     name: "DogmaKit",
     platforms: [.macOS(.v26), .iOS(.v26)],
@@ -42,12 +47,17 @@ let package = Package(
             dependencies: [
                 "DogmaModels",
                 "DogmaKitMacros",
+                .target(name: "DogmaKitResources", condition: .when(platforms: platformsWithBundle)),
                 .product(name: "BitField", package: "BitField")
             ],
-            resources: [.process("Resources")],
             swiftSettings: [
                 .enableExperimentalFeature("Lifetimes")
             ]
+        ),
+        // `sde.bin`. Outside `DogmaKit` so WebAssembly builds can leave out `Bundle` and full Foundation.
+        .target(
+            name: "DogmaKitResources",
+            resources: [.process("Resources")]
         ),
         // `@Snapshottable`: generates `FitStats` node snapshots. Internal to `DogmaKit`.
         .macro(
@@ -80,12 +90,17 @@ let package = Package(
             name: "DogmaText",
             dependencies: [
                 "DogmaModels",
+                .target(name: "DogmaTextResources", condition: .when(platforms: platformsWithBundle)),
                 .product(name: "FlatBin", package: "FlatBin")
             ],
-            resources: [.process("Resources")],
             swiftSettings: [
                 .enableExperimentalFeature("Lifetimes")
             ]
+        ),
+        // `text-en.bin`, split off for the same reason as `DogmaKitResources`.
+        .target(
+            name: "DogmaTextResources",
+            resources: [.process("Resources")]
         ),
         // Planetary industry (`planetary.bin`). Structured like `DogmaText`.
         .target(

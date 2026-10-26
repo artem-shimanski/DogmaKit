@@ -5,7 +5,11 @@
 //  Created by Artem Shimanski on 02.08.2026.
 //
 
+#if os(WASI)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 import DogmaModels
 
 /// Name to ID lookup, used by the EFT/XML importers (`DogmaKitIO.FitImporter`).
@@ -24,7 +28,7 @@ extension TextCatalog: TypeResolver {
 
     /// Case and surrounding whitespace are ignored, as in `DictionaryTypeResolver`.
     static func normalized(_ name: String) -> String {
-        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        name.trimmed.lowercased()
     }
 
     func buildIndex() -> ReverseIndex.Tables {

@@ -175,9 +175,11 @@ try typeExtension(of: SchematicID.self, from: planetSchematics.nameToID)
 try FlatEncoder.encode(try await buildPlanetaryData(from: sde, schematics: planetSchematics))
     .write(to: planetaryOutputDir.appending(path: "Resources/planetary.bin"))
 
-// Name catalog, built from the same tables as `db`; must run after `patch()`.
-try? FileManager.default.createDirectory(at: textOutputDir.appending(path: "Resources"), withIntermediateDirectories: true)
-try FlatEncoder.encode(buildTextCatalog()).write(to: textOutputDir.appending(path: "Resources/text-en.bin"))
+// Name catalog, built from the same tables as `db`; must run after `patch()`. It ships in the
+// `DogmaTextResources` target next to `DogmaText`.
+let textResourcesDir = textOutputDir.appending(path: "../DogmaTextResources/Resources").standardizedFileURL
+try? FileManager.default.createDirectory(at: textResourcesDir, withIntermediateDirectories: true)
+try FlatEncoder.encode(buildTextCatalog()).write(to: textResourcesDir.appending(path: "text-en.bin"))
 
 var db = DogmaSDE()
 db.attributes = PerfectDictionary(dogmaAttributes.elements)
@@ -186,4 +188,7 @@ db.warfareBuffs = PerfectDictionary(warfareBuffs.elements)
 db.skills = skills
 db.mutaplasmids = PerfectDictionary(dynamicItemAttributes.elements)
 
-try FlatEncoder.encode(db).write(to: outputDir.appending(path: "Resources/sde.bin"))
+// `sde.bin` ships in the `DogmaKitResources` target next to `DogmaKit`.
+let resourcesDir = outputDir.appending(path: "../DogmaKitResources/Resources").standardizedFileURL
+try? FileManager.default.createDirectory(at: resourcesDir, withIntermediateDirectories: true)
+try FlatEncoder.encode(db).write(to: resourcesDir.appending(path: "sde.bin"))

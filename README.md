@@ -41,7 +41,7 @@ What it does not do:
 ## Requirements
 
 * Swift tools 6.4, Swift language mode 6.
-* macOS 26+, iOS 26+, Linux (built and tested with the `swift:6.4` image).
+* macOS 26+, iOS 26+, Linux (built and tested with the `swift:6.4` image), WebAssembly (WASI; see below).
 * Experimental features: `Lifetimes` (DogmaKit, DogmaModels, DogmaText, DogmaPlanetary) and
   `LifetimeDependence` (DogmaModels). The API makes heavy use of `~Copyable` / `~Escapable`
   types and `@_lifetime`.
@@ -55,6 +55,17 @@ What it does not do:
   `-skipMacroValidation`).
 
 If the `swift` in `PATH` is not the Xcode toolchain, use `xcrun swift`.
+
+### WebAssembly
+
+`DogmaKit`, `DogmaKitIO` and `DogmaText` build for `wasm32-unknown-wasip1` with the Swift SDK for WebAssembly
+(open-source toolchain; Xcode's cannot target it). Differences from the other platforms:
+
+* FoundationEssentials instead of Foundation: full Foundation would add ICU data, tens of megabytes, to the module.
+* No `Bundle`, so no resource bundles: `sde.bin` and `text-en.bin` are read from the directory of the executable
+  (`CommandLine.arguments[0]`). They live in the `DogmaKitResources` and `DogmaTextResources` targets, linked on
+  every other platform.
+* No in-game XML import (`XMLParser` is part of full Foundation); EFT and DNA work.
 
 ## Installation
 
@@ -76,9 +87,9 @@ targets: [
 |---|---|---|
 | `DogmaIDs` | library | The typed SDE identifiers (`TypeID`, `GroupID`, `AttributeID`, `EffectID`, …). No dependencies; the `SDE` package depends on this product alone. |
 | `DogmaModels` | — (re-exported) | The flat-binary schema of `sde.bin` (`DogmaSDE`), `PerfectDictionary`, the `TypeResolver` and `NameCatalog` protocols. Re-exported by `DogmaKit`. |
-| `DogmaKit` | library | The engine: `DogmaEngine`, the write API (`Fit`), the read API (`FitStats`), `FitDocument`, `TypeCatalog`. Ships `Resources/sde.bin` and the generated ID constants (`TypeID.rifter`, `AttributeID.cpu`, …). |
+| `DogmaKit` | library | The engine: `DogmaEngine`, the write API (`Fit`), the read API (`FitStats`), `FitDocument`, `TypeCatalog`. Ships `sde.bin` (in the internal `DogmaKitResources` target) and the generated ID constants (`TypeID.rifter`, `AttributeID.cpu`, …). |
 | `DogmaKitIO` | library | Import and export of EFT, DNA and in-game XML (`FitImporter`, `FitExporter`), to and from `FitDocument`. Pure transformations; names come from a `TypeResolver` / `NameCatalog` the consumer supplies (`DogmaText.TextCatalog` implements both). |
-| `DogmaText` | library | English names from the SDE (`Resources/text-en.bin`, `TextCatalog`). Independent of `DogmaKit`. `TextCatalog` is a `TypeResolver` itself and can be installed as the debug name source so IDs print as `Rifter [587]`. |
+| `DogmaText` | library | English names from the SDE (`text-en.bin` in the internal `DogmaTextResources` target, `TextCatalog`). Independent of `DogmaKit`. `TextCatalog` is a `TypeResolver` itself and can be installed as the debug name source so IDs print as `Rifter [587]`. |
 | `DogmaPlanetary` | library | Planetary production: `planetary.bin`, `PlanetaryCatalog`, the extractor formula, `Colony` built from a `ColonySnapshot`, `ColonySimulation` producing a `Forecast`, colony fitting and customs. Does not depend on `DogmaKit`. |
 | `SDESchemaGenerator` | — | Executable behind the `generate-schema` plugin. |
 | `DogmaDataImporter` | — | Executable behind the `sde-import` plugin. |
@@ -168,11 +179,11 @@ build the package was linked to before is deleted unless another listed package 
 
 2. `sde-import` — runs `DogmaDataImporter`, which applies the manual patches in
    `DogmaDataImporter/Patch.swift` (synthetic effects and attributes the SDE lacks) and writes:
-   * `Sources/DogmaKit/Resources/sde.bin` — the engine's database;
+   * `Sources/DogmaKitResources/Resources/sde.bin` — the engine's database;
    * `Sources/DogmaKit/Generated/*.swift` — ID constants (`TypeID`, `GroupID`, `AttributeID`,
      `EffectID`, …);
    * `Sources/DogmaIDs/Generated/SDEVersion.swift` — the SDE build number and release date;
-   * `Sources/DogmaText/Resources/text-en.bin` — English names;
+   * `Sources/DogmaTextResources/Resources/text-en.bin` — English names;
    * `Sources/DogmaPlanetary/Resources/planetary.bin` and
      `Sources/DogmaPlanetary/Generated/SchematicIDs.swift` — PI data.
 
