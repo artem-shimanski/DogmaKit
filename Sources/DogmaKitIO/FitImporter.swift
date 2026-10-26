@@ -73,8 +73,9 @@ public struct FitImporter: Sendable {
     public static func detect(_ text: String) -> Format? {
         let trimmed = text.trimmed
         guard let first = trimmed.first else { return nil }
-        // A chat link `<url=fitting:...>` starts with an angle bracket but is DNA, not XML, so check it first.
-        if trimmed.contains("fitting:") { return .dna }
+        // A chat link `<url=fitting:...>` starts with an angle bracket but is DNA, not XML, so check it first. It may
+        // be pasted with the chat line around it; a bare `fitting:` prefix is the link's target alone.
+        if trimmed.contains("<url=fitting:") || trimmed.hasPrefix("fitting:") { return .dna }
         if first == "<" { return .xml }
         if first == "[" { return .eft }
         // DNA: the first line is `shipID:` followed by `typeID;qty`. Neither EFT nor XML can start that way.

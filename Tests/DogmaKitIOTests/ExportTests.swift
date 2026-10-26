@@ -187,6 +187,27 @@ struct ExportTests {
         #expect(ship.drones.first?.count == 5)
     }
 
+    // MARK: - Chat link
+
+    @Test("Bare DNA and the same DNA in a chat link both import back as DNA", arguments: [true, false])
+    func chatLinkRoundTrip(linked: Bool) throws {
+        let dna = export(Self.document, as: .dna).0
+        let text = linked ? "<url=fitting:\(dna)>Autocannon brawl</url>" : dna
+        #expect(FitImporter.detect(text) == .dna)
+
+        let result = Self.importer.load(text)
+        #expect(result.warnings.isEmpty, "\(result.warnings)")
+        let imported = try #require(result.documents.first)
+        let ship = try #require(imported.pilots.first?.ship)
+        let original = Self.document.pilots[0].ship!
+
+        #expect(imported.name == (linked ? Self.document.name : nil))
+        #expect(ship.type == .rifter)
+        #expect(ship.modules.map(\.type.rawValue).sorted() == original.modules.map(\.type.rawValue).sorted())
+        #expect(ship.modules.filter { $0.charge?.type == TypeID.fusionS }.count == 2)
+        #expect(ship.drones == [.init(type: .hobgoblinII, count: 5, active: true)])
+    }
+
     // MARK: - XML
 
     @Test("XML round trip keeps exact sockets and drones; charges go to the cargo")

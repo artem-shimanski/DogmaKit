@@ -29,7 +29,7 @@ struct DNAImporter {
 
     func parse(_ text: String) -> ImportResult {
         var result = ImportResult()
-        guard let body = Self.unwrap(text.trimmed) else {
+        guard let (body, name) = Self.unwrap(text.trimmed) else {
             result.warnings.append(.noFitsFound)
             return result
         }
@@ -45,7 +45,7 @@ struct DNAImporter {
             return result
         }
 
-        var document = context.makeDocument(name: nil, ship: shipID)
+        var document = context.makeDocument(name: name, ship: shipID)
         var modules: [FitDocument.Module] = []
         var drones: [FitDocument.Drone] = []
         var implants: [FitDocument.Item] = []
@@ -115,14 +115,16 @@ struct DNAImporter {
 
     // MARK: - Parsing
 
-    /// Strips the chat-link wrapper `<url=fitting:...>Name</url>` if present.
-    private static func unwrap(_ text: String) -> String? {
+    /// Strips the chat-link wrapper `<url=fitting:...>Name</url>` if present, returning the DNA and the link's name.
+    private static func unwrap(_ text: String) -> (body: String, name: String?)? {
         guard let range = text.firstRange(of: "fitting:") else {
-            return text.isEmpty ? nil : text
+            return text.isEmpty ? nil : (text, nil)
         }
         let tail = text[range.upperBound...]
-        guard let end = tail.firstIndex(of: ">") else { return String(tail) }
-        return String(tail[tail.startIndex..<end])
+        guard let end = tail.firstIndex(of: ">") else { return (String(tail), nil) }
+        let label = tail[tail.index(after: end)...]
+        let name = label.firstRange(of: "</url>").map { label[..<$0.lowerBound].trimmed }
+        return (String(tail[..<end]), name?.isEmpty == false ? name : nil)
     }
 
     private struct Entry {

@@ -225,6 +225,23 @@ struct ImportTests {
 
         #expect(result.documents.first?.pilots.first?.ship?.type == .rifter)
         #expect(result.documents.first?.pilots.first?.ship?.modules.count == 1)
+        #expect(result.documents.first?.name == "Fit")
+    }
+
+    @Test("DNA: the link as pasted from chat, without a name, or as a bare target", arguments: [
+        ("[ 2026.10.26 12:00:00 ] Pilot > <url=fitting:587:2048;1::>Fit</url>\n", "Fit"),
+        ("\n  <url=fitting:587:2048;1::></url>  \n", nil),
+        ("fitting:587:2048;1::", nil),
+        (" 587:2048;1::\n", nil),
+    ] as [(String, String?)])
+    func dnaLinkForms(text: String, name: String?) throws {
+        #expect(FitImporter.detect(text) == .dna)
+        let result = try importer().load(text)
+        #expect(result.warnings.isEmpty, "\(result.warnings)")
+        let document = try #require(result.documents.first)
+        #expect(document.name == name)
+        #expect(document.pilots.first?.ship?.type == .rifter)
+        #expect(document.pilots.first?.ship?.modules.map(\.type) == [.damageControlII])
     }
 
     // MARK: - XML
@@ -286,6 +303,8 @@ struct ImportTests {
         #expect(FitImporter.detect("587:2048;1::") == .dna)
         // A chat link starts with `<` but is DNA, not XML.
         #expect(FitImporter.detect("<url=fitting:587:2048;1::>Fit</url>") == .dna)
+        // An EFT fit whose name mentions `fitting:` stays EFT.
+        #expect(FitImporter.detect("[Rifter, PvP fitting: kite]\nDamage Control II") == .eft)
         #expect(FitImporter.detect("   ") == nil)
     }
 
