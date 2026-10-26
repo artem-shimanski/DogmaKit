@@ -37,7 +37,7 @@ let package = Package(
         .plugin(name: "SDESchemaGeneratorPlugin", targets: ["SDESchemaGeneratorPlugin"])
     ],
     dependencies: [
-        .package(url: "https://github.com/artem-shimanski/FlatBin.git", .upToNextMinor(from: "0.1.1")),
+        .package(url: "https://github.com/artem-shimanski/FlatBin.git", .upToNextMinor(from: "0.1.2")),
         .package(url: "https://github.com/artem-shimanski/BitField.git", .upToNextMinor(from: "0.1.2")),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", "603.0.0"..<"605.0.0")
     ],
