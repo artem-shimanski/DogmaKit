@@ -97,13 +97,12 @@ where Key.RawValue: FixedWidthInteger & FlatRawCodable & Sendable {
         let mask = sparseCount - 1
         let shift = Key.RawValue.bitWidth - sparseCount.trailingZeroBitCount
         let bucketMask = bucketCount - 1
-        let iKey = Int(key.rawValue)
-        
-        let bucketIdx = iKey & bucketMask
-        
-        let multiplier = Int(multipliers[bucketIdx])
-        
-        let idx = ((iKey &* multiplier) >> shift) & mask
+        // Arithmetic in the key type, as the table was built: converting to `Int` would trap on 32-bit
+        // platforms for keys or multipliers above `Int32.max`.
+        let rawKey = key.rawValue
+        let bucketIdx = Int(truncatingIfNeeded: rawKey) & bucketMask
+        let multiplier = multipliers[bucketIdx]
+        let idx = Int(truncatingIfNeeded: (rawKey &* multiplier) >> shift) & mask
         let denseIdx = Int(sparseIndices[idx])
         
         let entry = denseEntries[denseIdx]
@@ -156,13 +155,12 @@ extension PerfectDictionaryStore.View {
             let mask = sparseCount - 1
             let shift = Key.RawValue.bitWidth - sparseCount.trailingZeroBitCount
             let bucketMask = bucketCount - 1
-            let iKey = Int(key.rawValue)
-            
-            let bucketIdx = iKey & bucketMask
-            
-            let multiplier = Int(multipliers[bucketIdx].load())
-            
-            let idx = ((iKey &* multiplier) >> shift) & mask
+            // Arithmetic in the key type, as the table was built: converting to `Int` would trap on 32-bit
+            // platforms for keys or multipliers above `Int32.max`.
+            let rawKey = key.rawValue
+            let bucketIdx = Int(truncatingIfNeeded: rawKey) & bucketMask
+            let multiplier = multipliers[bucketIdx].load()
+            let idx = Int(truncatingIfNeeded: (rawKey &* multiplier) >> shift) & mask
             let denseIdx = Int(sparseIndices[idx].load())
             
             let entry = denseEntries[denseIdx]

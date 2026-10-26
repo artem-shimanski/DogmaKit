@@ -60,7 +60,7 @@ extension DogmaSDE.TypeInfo {
                   groupID: .init(rawValue: UInt16(info.groupID)),
                   categoryID: categoryID,
                   metaGroup: .init(rawValue: UInt16(info.metaGroupID ?? 0)),
-                  metaLevel: info.metaLevel ?? -1,
+                  metaLevel: Int32(info.metaLevel ?? -1),
                   attributes: PerfectDictionary(attributes),
                   effects: effects ?? [],
                   requiredSkills: requiredSkills,

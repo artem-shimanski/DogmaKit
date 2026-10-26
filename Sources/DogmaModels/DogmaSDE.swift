@@ -33,7 +33,7 @@ public struct DogmaSDE: Sendable {
     }
     
     public typealias CubicMeter = Float
-    public typealias MetaLevel = Int
+    public typealias MetaLevel = Int32
     
     @FlatCodable
     public struct AttributeInfo: Identifiable, BitwiseCopyable, Sendable {
