@@ -79,8 +79,21 @@ extension Entity.Drone {
         case standupHeavy
         case standupLight
         case standupSupport
+
+        /// The hull attribute with this squadron type's slot count; `nil` for `.none`.
+        var slotsAttributeID: AttributeID? {
+            switch self {
+            case .none: nil
+            case .heavy: .fighterHeavySlots
+            case .light: .fighterLightSlots
+            case .support: .fighterSupportSlots
+            case .standupHeavy: .fighterStandupHeavySlots
+            case .standupLight: .fighterStandupLightSlots
+            case .standupSupport: .fighterStandupSupportSlots
+            }
+        }
     }
-    
+
     @BitField<UInt8>
     public struct Flags: Sendable, Equatable {
         @Bit(1) public var isActive: Bool

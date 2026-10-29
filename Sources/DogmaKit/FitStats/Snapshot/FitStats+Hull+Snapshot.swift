@@ -13,6 +13,11 @@ extension FitStats.Hull.Snapshot {
         slots[slot] ?? SlotCapacity(used: 0, total: 0)
     }
 
+    /// See `FitStats.Hull.capacity(of:)`. `.none` gives zero.
+    public func capacity(of squadron: Entity.Drone.Squadron) -> SlotCapacity {
+        squadrons[squadron] ?? SlotCapacity(used: 0, total: 0)
+    }
+
     /// Runs the capacitor simulation.
     public func capacitor() -> CapacitorSimulator.Result {
         capacitorSimulator.run()

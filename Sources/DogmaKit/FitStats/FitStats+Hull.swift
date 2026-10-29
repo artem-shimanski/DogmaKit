@@ -169,7 +169,7 @@ extension FitStats {
             var used: Double = 0
             drones.forEach { drone in
                 guard drone.squadron == .none else { return }
-                used += (drone.attributes[.volume] ?? 0) * Double(drone.count)
+                used += drone.volume * Double(drone.count)
             }
             return Resource(used: used, total: attributes[.droneCapacity] ?? 0)
         }
@@ -180,7 +180,7 @@ extension FitStats {
             var used: Double = 0
             drones.forEach { drone in
                 guard drone.squadron != .none else { return }
-                used += (drone.attributes[.volume] ?? 0) * Double(drone.count)
+                used += drone.volume * Double(drone.count)
             }
             return Resource(used: used, total: attributes[.fighterCapacity] ?? 0)
         }
@@ -190,20 +190,55 @@ extension FitStats {
             var used: Double = 0
             drones.forEach { drone in
                 guard drone.isActive else { return }
-                used += (drone.attributes[.droneBandwidthUsed] ?? 0) * Double(drone.count)
+                used += drone.bandwidthUsed * Double(drone.count)
             }
             return Resource(used: used, total: attributes[.droneBandwidth] ?? 0)
         }
 
-        /// Drones in space. `total` is the pilot's `maxActiveDrones` (a pilot attribute, not a hull one).
+        /// Drones in space: active ordinary drones, fighters excluded (launched squadrons are
+        /// `fighterTubes.used`). `total` is the pilot's `maxActiveDrones` (a pilot attribute,
+        /// not a hull one).
         public var dronesInSpace: SlotCapacity {
             var used = 0
-            drones.forEach { drone in
+            drones.forEach(in: .none) { drone in
                 guard drone.isActive else { return }
                 used += drone.count
             }
             let pilot = Pilot(session: session, id: id.pilot)
             return SlotCapacity(used: used, total: Int(pilot.attributes[.maxActiveDrones] ?? 0))
+        }
+
+        /// Fighter launch tubes: `used` is the number of launched squadrons, `total` is the
+        /// hull's `fighterTubes`.
+        public var fighterTubes: SlotCapacity {
+            var used = 0
+            drones.forEach { drone in
+                guard drone.squadron != .none, drone.isActive else { return }
+                used += 1
+            }
+            return SlotCapacity(used: used, total: Int(attributes[.fighterTubes] ?? 0))
+        }
+
+        /// Squadron slots of one fighter type: `used` is the number of squadrons of that type
+        /// in the fit, launched or not; `total` is the hull's slot count for it. `total` is
+        /// `0` for `.none`.
+        public func capacity(of squadron: Entity.Drone.Squadron) -> SlotCapacity {
+            let total = squadron.slotsAttributeID.map { Int(attributes[$0] ?? 0) } ?? 0
+            return SlotCapacity(used: drones.count(in: squadron), total: total)
+        }
+
+        /// `capacity(of:)` for every fighter squadron type.
+        public var squadrons: [Entity.Drone.Squadron: SlotCapacity] {
+            var squadrons: [Entity.Drone.Squadron: SlotCapacity] = [:]
+            for squadron in Entity.Drone.Squadron.allCases where squadron != .none {
+                squadrons[squadron] = capacity(of: squadron)
+            }
+            return squadrons
+        }
+
+        /// Cargo hold, m³ (`capacity`).
+        public var cargoCapacity: Double {
+            attributes[.capacity] ?? 0
         }
 
         /// Rig size accepted by the hull. `.none` means the hull takes no rigs (shuttles, capsules).

@@ -66,6 +66,21 @@ extension FitStats {
             entity.kind.drone?.flags.dealsDamage ?? false
         }
 
+        /// Volume of one drone or fighter, m³.
+        public var volume: Double {
+            attributes[.volume] ?? 0
+        }
+
+        /// Drone bandwidth used by one drone, Mbit/s. Zero for fighters.
+        public var bandwidthUsed: Double {
+            attributes[.droneBandwidthUsed] ?? 0
+        }
+
+        /// Maximum velocity of one drone or fighter, m/s.
+        public var maxVelocity: Double {
+            attributes[.maxVelocity] ?? 0
+        }
+
         /// Whether the drone is mutated (abyssal).
         public var isMutated: Bool {
             entity.mutation != nil
@@ -518,10 +533,19 @@ extension FitStats {
             let amount = delta.recharge - delta.drain
             guard amount != 0 else { return nil }
             
-            let cycle = rawCycleTime
+            // The neutralizer effect cycles on its own duration, not on `speed`/`duration`.
+            let neutralizerCycle = (attributes[.energyNeutralizerDuration] ?? 0) / 1000
+            let cycle = neutralizerCycle > 0 ? neutralizerCycle : rawCycleTime
             guard cycle > 0 else { return nil }
 
             return CapacitorSimulator.Node(cycleTime: cycle, drain: delta.drain, recharge: delta.recharge, clipSize: 0, reloadTime: 0)
+        }
+
+        /// Simulator node for the target's capacitor with neither drain nor injection blocked:
+        /// what the stack does to any target.
+        @SnapshotField
+        public func projectedCapacitorNode() -> CapacitorSimulator.Node? {
+            projectedCapacitorNode(disallowOffensive: false, disallowAssistance: false)
         }
     }
 }

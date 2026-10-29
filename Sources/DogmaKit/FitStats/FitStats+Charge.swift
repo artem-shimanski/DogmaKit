@@ -27,5 +27,10 @@ extension FitStats {
         }
 
         @inlinable public var typeID: TypeID { entity.typeID }
+
+        /// Volume of one charge, m³.
+        public var volume: Double {
+            attributes[.volume] ?? 0
+        }
     }
 }

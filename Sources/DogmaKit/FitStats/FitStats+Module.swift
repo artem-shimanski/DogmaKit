@@ -148,6 +148,46 @@ extension FitStats {
             return nil
         }
 
+        /// Room for charges, m³ (`capacity`).
+        public var chargeCapacity: Double {
+            attributes[.capacity] ?? 0
+        }
+
+        /// Charges of the loaded type in a full load: `chargeCapacity / volume`, rounded down.
+        /// `0` without a charge; a loaded charge counts at least once, even when its volume
+        /// is zero or exceeds the capacity.
+        public var chargeCount: Int {
+            guard let charge else { return 0 }
+            let volume = charge.volume
+            guard volume > 0 else { return 1 }
+            return max(Int((chargeCapacity / volume).rounded(.down)), 1)
+        }
+
+        /// Slots the module adds to the hull's hi/med/low racks (T3C subsystems). Only
+        /// nonzero entries.
+        public var slotModifiers: [Entity.Module.Slot: Int] {
+            var result: [Entity.Module.Slot: Int] = [:]
+            for (slot, attributeID) in [(Entity.Module.Slot.hi, AttributeID.hiSlotModifier),
+                                        (.med, .medSlotModifier),
+                                        (.low, .lowSlotModifier)] {
+                let value = Int((attributes[attributeID] ?? 0).rounded())
+                if value != 0 { result[slot] = value }
+            }
+            return result
+        }
+
+        /// Turret and launcher hardpoints the module adds to the hull (T3C subsystems). Only
+        /// nonzero entries.
+        public var hardpointModifiers: [Entity.Module.Hardpoint: Int] {
+            var result: [Entity.Module.Hardpoint: Int] = [:]
+            for (hardpoint, attributeID) in [(Entity.Module.Hardpoint.turret, AttributeID.turretHardPointModifier),
+                                             (.launcher, .launcherHardPointModifier)] {
+                let value = Int((attributes[attributeID] ?? 0).rounded())
+                if value != 0 { result[hardpoint] = value }
+            }
+            return result
+        }
+
         /// Whether the module is mutated (abyssal). All other stats already use the mutated values.
         public var isMutated: Bool {
             entity.mutation != nil
@@ -358,9 +398,8 @@ extension FitStats {
             guard reload.countsClip(forced: entity.kind.module!.flags.forceReload),
                   let charge
             else { return 0 }
-            let chargeVolume = charge.attributes[.volume] ?? 0
-            let capacity = attributes[.capacity] ?? 0
-            let charges = chargeVolume > 0 ? (capacity / chargeVolume).rounded(.down) : 0
+            let chargeVolume = charge.volume
+            let charges = chargeVolume > 0 ? (chargeCapacity / chargeVolume).rounded(.down) : 0
             guard charges > 0 else { return 0 }
             let cycles: Double
             if let chargeRate = attributes[.chargeRate], chargeRate > 0 {
@@ -461,7 +500,15 @@ extension FitStats {
                                  recharge: delta.recharge,
                                  reload: session.pointee.reload.forCapacitor)
         }
-        
+
+        /// Simulator node for the target's capacitor with neither drain nor injection blocked:
+        /// what the module does to any target. The target's own node may differ, see
+        /// `projectedCapacitorNode(disallowOffensive:disallowAssistance:)`.
+        @SnapshotField
+        public func projectedCapacitorNode() -> CapacitorSimulator.Node? {
+            projectedCapacitorNode(disallowOffensive: false, disallowAssistance: false)
+        }
+
         /// Volley of one cycle regardless of state; zero for modules that deal no damage.
         private var rawVolleyDamage: DamageVector {
             func damage(with attributes: EntityAttributes) -> DamageVector {
