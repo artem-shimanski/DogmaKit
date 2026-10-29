@@ -1,6 +1,5 @@
 .DS_Store
 /.build
-/Packages
 .swiftpm/
 xcuserdata/
 *.xcuserstate
@@ -10,5 +9,4 @@ DerivedData/
 .SDE/
 CLAUDE.md
 Docs/
-ESIData/
 Package.resolved

@@ -65,6 +65,14 @@ struct ImportTests {
     Limited Ocular Filter
     """
 
+    @Test("EFT: a drone line without a count is one drone")
+    func eftDroneWithoutCount() throws {
+        let result = try importer().load("[Rifter, Fit]\n\nHobgoblin II\n", as: .eft)
+        let ship = try #require(result.documents.first?.pilots.first?.ship)
+        #expect(ship.drones.map(\.type) == [.hobgoblinII])
+        #expect(ship.drones.first?.count == 1)
+    }
+
     @Test("EFT: hull, name, modules, charges and drones")
     func eftBasics() throws {
         let result = try importer().load(Self.eft, as: .eft)

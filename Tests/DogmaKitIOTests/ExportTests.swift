@@ -121,6 +121,27 @@ struct ExportTests {
         """)
     }
 
+    @Test("EFT: a legacy drone without a count is a full stack of 5, an explicit count is kept")
+    func eftDroneCount() {
+        func eft(_ count: UInt8?) -> String {
+            let document = FitDocument(pilots: [.init(
+                ship: .init(type: .rifter, drones: [.init(type: .hobgoblinII, count: count, active: true)]))])
+            return export(document, as: .eft).0
+        }
+        #expect(eft(nil).contains("Hobgoblin II x5"))
+        #expect(eft(3).contains("Hobgoblin II x3"))
+    }
+
+    @Test("EFT: a stack of 5 drones loaded into the engine exports as x5")
+    func eftEngineDroneCount() async throws {
+        let document = FitDocument(pilots: [.init(
+            ship: .init(type: .rifter, drones: [.init(type: .hobgoblinII, active: true)]))])
+        let engine = DogmaEngine()
+        try await engine.load(document)
+        let text = Self.exporter.export(await engine.export(), as: .eft).text
+        #expect(text.contains("Hobgoblin II x5"))
+    }
+
     @Test("EFT: every pilot with a ship becomes a fit, a pilot without one is reported")
     func eftSeveralPilots() throws {
         var document = Self.document

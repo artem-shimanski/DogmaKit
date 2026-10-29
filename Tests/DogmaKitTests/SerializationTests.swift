@@ -140,13 +140,28 @@ struct SerializationTests {
         #expect(module.state == nil)           // .active is the default for activatable modules
         #expect(module.charge == nil)
         #expect(module.target == nil)
-        #expect(drone.count == nil)            // full flight
+        #expect(drone.count == 5)              // full flight, written explicitly
         #expect(drone.active == nil)
 
         // Skills: "all at V" is one line, not 500.
         let skills = try #require(document.pilots.first?.skills)
         #expect(skills.default == 5)
         #expect(skills.levels.isEmpty)
+    }
+
+    @Test("A full fighter squadron is written with the squadron size")
+    func fighterCountIsExplicit() async throws {
+        let engine = DogmaEngine()
+        let size = try await engine.edit { fit -> UInt8 in
+            let pilot = try fit.pilots.add(skillLevel: 5)
+            let hull = pilot.hull
+            try hull.set(typeID: .thanatos)
+            return try hull.drones.add(.einherjiI).squadronSize
+        }
+        let document = await engine.export()
+        let drone = try #require(document.pilots.first?.ship?.drones.first)
+        #expect(size >= 1)
+        #expect(drone.count == size)
     }
 
     @Test("A rack gap is written explicitly")

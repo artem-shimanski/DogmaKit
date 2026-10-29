@@ -328,7 +328,7 @@ extension FitDocument {
         public var type: TypeID
         /// Informational name; not read on import.
         public var name: String?
-        /// Stack / squadron size. `nil` means a full squadron.
+        /// Stack / squadron size. Exporters always write it; `nil` (older documents) is read as a full squadron.
         public var count: UInt8?
         /// Whether deployed in space. `nil` means `false`.
         public var active: Bool?

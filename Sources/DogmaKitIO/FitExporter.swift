@@ -93,13 +93,14 @@ public struct FitExporter: Sendable {
                       boosters: pilot.boosters)
     }
 
-    /// Stack size of a drone entry; `nil` in the document means a full squadron for fighters and one drone otherwise.
+    /// Stack size of a drone entry; a legacy `nil` in the document means a full squadron, as in the engine:
+    /// `fighterSquadronMaxSize` when present and at least 1, otherwise 5.
     func count(of drone: FitDocument.Drone) -> Int {
         if let count = drone.count { return Int(count) }
-        if catalog.categoryID(of: drone.type) == .fighter {
-            return Int(catalog.attribute(.fighterSquadronMaxSize, of: drone.type) ?? 1)
+        if let size = catalog.attribute(.fighterSquadronMaxSize, of: drone.type), size >= 1 {
+            return Int(min(size, 255))
         }
-        return 1
+        return 5
     }
 
     /// Charges grouped by type in order of first appearance, with the number of modules loaded with each.

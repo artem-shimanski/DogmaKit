@@ -180,7 +180,7 @@ extension DogmaEngine.Session {
                 let typeID = baseTypeID(of: entity.id) ?? entity.typeID
 
                 var item = FitDocument.Drone(type: typeID, name: names?(typeID))
-                if drone.count != drone.squadronSize { item.count = drone.count }
+                item.count = drone.count
                 if drone.flags.isActive { item.active = true }
                 if drone.flags.isKamikaze { item.kamikaze = true }
                 if drone.target != .invalid,

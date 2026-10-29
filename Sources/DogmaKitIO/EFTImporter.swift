@@ -105,7 +105,7 @@ struct EFTImporter {
                         modules.append(module)
                     case .drone:
                         var drone = FitDocument.Drone(type: typeID)
-                        drone.count = spec.amount.map { UInt8(clamping: max(1, $0)) }
+                        drone.count = UInt8(clamping: max(1, spec.amount ?? 1))
                         // EFT cannot tell "in bay" from "in space"; assume a posted fit shows its combat setup.
                         drone.active = true
                         drone.mutation = mutation(spec.mutationRef,
