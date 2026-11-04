@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3632936, 2026-10-20T11:08:17Z
+// SDE Version: 3667080, 2026-11-03T11:08:50Z
 //
 
 import DogmaModels

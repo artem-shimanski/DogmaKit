@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3632936, 2026-10-20T11:08:17Z
+// SDE Version: 3667080, 2026-11-03T11:08:50Z
 //
 
 import DogmaModels
@@ -2878,8 +2878,9 @@ extension AttributeID {
 	public static let remoteCapacitorImpedance: AttributeID = 6463
 	public static let remoteCapacitorImpedanceBonus: AttributeID = 6464
 	public static let behaviorSiegeRemoteCapacitorImpedanceModifier: AttributeID = 6465
-	public static let tacticalModes: AttributeID = 6466
-	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6467
-	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6468
-	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6469
+	public static let eliteBonusHeavyGunship3: AttributeID = 6476
+	public static let tacticalModes: AttributeID = 6477
+	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6478
+	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6479
+	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6480
 }

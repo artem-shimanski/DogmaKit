@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3632936, 2026-10-20T11:08:17Z
+// SDE Version: 3667080, 2026-11-03T11:08:50Z
 //
 
 import DogmaModels
@@ -11084,4 +11084,6 @@ extension TypeID {
 	public static let sarikusasCapitalEnergyNosferatu: TypeID = 97710
 	public static let hormsCapitalEnergyNeutralizer: TypeID = 97711
 	public static let zoryasUltratidalEntropicDisintegrator: TypeID = 97712
+	public static let herald: TypeID = 97793
+	public static let penitence: TypeID = 97904
 }

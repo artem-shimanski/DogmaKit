@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3632936, 2026-10-20T11:08:17Z
+// SDE Version: 3667080, 2026-11-03T11:08:50Z
 //
 
 import DogmaModels
@@ -3129,6 +3129,10 @@ extension EffectID {
 	public static let shipMissileDamageCF: EffectID = 13025
 	public static let shipBonusDroneTrackingGF2: EffectID = 13026
 	public static let shipMissileDamageAF: EffectID = 13027
+	public static let eliteBonusGunshipLaserOptimal2: EffectID = 13042
+	public static let gunshipSkillMultiplier3: EffectID = 13044
+	public static let eliteBonusHeavyGunshipDroneControlRange2: EffectID = 13045
+	public static let warshipSkillMultiplier3: EffectID = 13046
 	public static let characterDamageMissiles: EffectID = 20000
 	public static let naniteRepairPasteArmorDamageBonus: EffectID = 20001
 	public static let tacticalMode: EffectID = 20002
