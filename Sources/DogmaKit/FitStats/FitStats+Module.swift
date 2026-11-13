@@ -69,6 +69,17 @@ extension FitStats {
             return UInt8(exactly: value.rounded()).flatMap(Entity.Module.SubsystemSlot.init(rawValue:))
         }
 
+        /// `maxGroupFitted` / `maxTypeFitted` limits the module carries, with the current counts
+        /// on its hull; empty for an unlimited module. See `FittingLimit`.
+        public var fittingLimits: [FittingLimit] {
+            session.pointee.fittingLimits(of: entityID)
+        }
+
+        /// The hull holds more modules of this module's group or type than its limit allows.
+        public var exceedsFittingLimit: Bool {
+            fittingLimits.contains { $0.isExceeded }
+        }
+
         /// What the module can do (online, activate, overload, require a target, force reload).
         public var flags: Entity.Module.Flags {
             entity.kind.module!.flags

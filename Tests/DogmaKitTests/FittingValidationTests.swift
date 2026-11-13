@@ -2,7 +2,8 @@
 //  FittingValidationTests.swift
 //  DogmaKit
 //
-//  Validation on the write path (Fit.Hull.modules.add): rig size and subsystems.
+//  Validation on the write path (Fit.Hull.modules.add): rig size and subsystems;
+//  maxGroupFitted/maxTypeFitted are reported on the read path (FitStats.Module.fittingLimits).
 //  Slot/CPU/PG overfitting is allowed (reported via SlotCapacity/Resource);
 //  structurally impossible fits throw DogmaError.
 //
@@ -173,5 +174,63 @@ struct FittingValidationTests {
         }
         #expect(capacity.used == subsystems.count)
         #expect(capacity.total == subsystems.count)
+    }
+
+    // MARK: - maxGroupFitted / maxTypeFitted
+
+    @Test("A single limited module reports its limit without exceeding it")
+    func singleLimitedModuleIsValid() async throws {
+        let engine = try await makeFit(hull: .rifter, modules: [.damageControlII])
+        let (limits, exceeding) = await engine.evaluate { stats -> ([FittingLimit], [ModuleID]) in
+            let hull = stats[Self.firstHull]
+            let id = Array(hull.modules.allIDs)[0]
+            return (hull.modules[id].fittingLimits, hull.modulesExceedingFittingLimits)
+        }
+        #expect(limits == [FittingLimit(scope: .group(.damageControl), maximum: 1, fitted: 1)])
+        #expect(exceeding.isEmpty)
+    }
+
+    @Test("Two Rig Synchronizers break maxGroupFitted; both are reported")
+    func twoSynchronizersExceedGroupLimit() async throws {
+        let engine = try await makeFit(hull: .rifter, modules: [.smallFederationNavySynchronizer,
+                                                                .smallImperialNavySynchronizer,
+                                                                .smallTrimarkArmorPumpI])
+        let (ids, exceeding, limits) = await engine.evaluate { stats -> ([ModuleID], [ModuleID], [[FittingLimit]]) in
+            let hull = stats[Self.firstHull]
+            let ids = Array(hull.modules.ids(in: .rig))
+            var limits: [[FittingLimit]] = []
+            for id in ids {
+                limits.append(hull.modules[id].fittingLimits)
+            }
+            return (ids, hull.modulesExceedingFittingLimits, limits)
+        }
+        let expected = FittingLimit(scope: .group(.rigSynchronizer), maximum: 1, fitted: 2)
+        #expect(exceeding == Array(ids.prefix(2)))
+        #expect(limits == [[expected], [expected], []])
+    }
+
+    @Test("maxTypeFitted counts the type only; modules over the limit are reported, not demoted")
+    func typeLimitIgnoresOtherTypesOfGroup() async throws {
+        let mixed = try await makeFit(hull: .drake, modules: [.vigilantVitalShieldBoostAmplifier,
+                                                              .shieldBoostAmplifierII])
+        let mixedExceeding = await mixed.evaluate { stats in
+            stats[Self.firstHull].modulesExceedingFittingLimits
+        }
+        #expect(mixedExceeding.isEmpty)
+
+        let doubled = try await makeFit(hull: .drake, modules: [.vigilantVitalShieldBoostAmplifier,
+                                                                .vigilantVitalShieldBoostAmplifier])
+        let (exceeding, limits, states) = await doubled.evaluate { stats -> (Int, [FittingLimit], [Entity.Module.State]) in
+            let hull = stats[Self.firstHull]
+            let ids = Array(hull.modules.allIDs)
+            var states: [Entity.Module.State] = []
+            for id in ids {
+                states.append(hull.modules[id].effectiveState)
+            }
+            return (hull.modulesExceedingFittingLimits.count, hull.modules[ids[0]].fittingLimits, states)
+        }
+        #expect(exceeding == 2)
+        #expect(states == [.active, .active])
+        #expect(limits == [FittingLimit(scope: .type(.vigilantVitalShieldBoostAmplifier), maximum: 1, fitted: 2)])
     }
 }

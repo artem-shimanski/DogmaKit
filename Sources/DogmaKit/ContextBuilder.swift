@@ -440,7 +440,8 @@ struct ContextBuilder {
 
         // 2. Module state gates. Traversal order is deterministic (slots in order, fit order
         // within a slot): when a limit is exceeded the first N modules keep their state and
-        // the rest are demoted. maxGroupFitted/maxTypeFitted do not demote; they are fitting errors.
+        // the rest are demoted. maxGroupFitted/maxTypeFitted do not demote; they are fitting errors
+        // reported by `FitStats.Module.fittingLimits`.
         for hull in session.entities.hulls() {
             groupCounter.reset()
 

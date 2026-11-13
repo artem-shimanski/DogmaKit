@@ -261,6 +261,14 @@ extension FitStats {
             return slots
         }
 
+        /// Modules that break a `maxGroupFitted` / `maxTypeFitted` limit, in fit order.
+        /// Details are in `Module.fittingLimits`.
+        public var modulesExceedingFittingLimits: [ModuleID] {
+            modules.allIDs.filter { id in
+                session.pointee.fittingLimits(of: id.rawValue).contains { $0.isExceeded }
+            }
+        }
+
         public var turretHardpoints: SlotCapacity {
             capacity(of: .turret)
         }
