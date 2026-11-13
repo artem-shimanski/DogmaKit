@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3667080, 2026-11-03T11:08:50Z
+// SDE Version: 3698585, 2026-11-13T11:06:47Z
 //
 
 import DogmaModels
@@ -316,7 +316,6 @@ extension EffectID {
 	public static let eliteBonusGunshipHybridTracking2: EffectID = 996
 	public static let eliteBonusGunshipProjectileFalloff2: EffectID = 998
 	public static let eliteBonusGunshipShieldBoost2: EffectID = 999
-	public static let eliteBonusGunshipCapRecharge2: EffectID = 1001
 	public static let selfT2SmallLaserPulseDamageBonus: EffectID = 1003
 	public static let selfT2SmallLaserBeamDamageBonus: EffectID = 1004
 	public static let selfT2SmallHybridBlasterDamageBonus: EffectID = 1005
@@ -3117,22 +3116,85 @@ extension EffectID {
 	public static let moduleBonusBreacherPodDamageControl: EffectID = 12916
 	public static let dScanRangeBonus: EffectID = 12923
 	public static let proximityDbuffTacticalDestroyerHPAddEffect: EffectID = 12924
+	public static let shipLargeLaserRangeBonusABC3: EffectID = 12925
+	public static let shipBonusArmorPlateMassGBC3: EffectID = 12926
+	public static let shipBonusLargeHybridTurretHybridFallOffGBC1: EffectID = 12927
+	public static let shipBonusMWDSignatureRadiusMBC3: EffectID = 12928
+	public static let shipRoleBonusAttackBattlecruiserLargeMissilePowerFittingBonus: EffectID = 12932
+	public static let shipRoleBonusAttackBattlecruiserLargeMissileCPUFittingBonus: EffectID = 12933
+	public static let shipBonusCruiseMissileAndTorpedoKineticCBC1: EffectID = 12934
+	public static let shipBonusCruiseMissileAndTorpedoEMThermalExplosiveCBC2: EffectID = 12935
+	public static let shipBonusCruiseMissileAndTorpedoMaximumVelocityCBC3: EffectID = 12936
 	public static let capNeedBonusEffectLasersOnline: EffectID = 12940
 	public static let shipLaserDamagePirateAttackBattlecruiser: EffectID = 12949
 	public static let shipBloodRaiderEnergyNeutralizerNosferatuTransferAmountBonusABC1: EffectID = 12950
 	public static let shipBloodRaiderEnergyNeutralizerNosferatuOptimalRangeBonusABC2: EffectID = 12951
 	public static let shipBloodRaiderEnergyNeutralizerNosferatuFalloffRangeBonusABC3: EffectID = 12952
 	public static let shipBloodRaiderWebRangeBonusMBC1: EffectID = 12953
+	public static let rigSetAmarrNavyBonusModAddSetRigGroup: EffectID = 12963
+	public static let rigSetCaldariNavyBonusModAddSetRigGroup: EffectID = 12964
+	public static let rigSetGallenteNavyBonusModAddSetRigGroup: EffectID = 12965
+	public static let rigSetMinmatarFleetBonusModAddSetRigGroup: EffectID = 12966
+	public static let rigHybridWeaponDamageMultiplyPostPercent: EffectID = 12968
+	public static let gallenteRigSetBonusEffectmodAdd: EffectID = 12969
 	public static let skillConduitPassengerBonusModAddPassive: EffectID = 12975
+	public static let rigDrawbackReductionModuleSet: EffectID = 12978
+	public static let rigEnergyWeaponDamageMultiplyPostPercent: EffectID = 12980
+	public static let rigProjectileWeaponDamageMultiplyPostPercent: EffectID = 12981
+	public static let amarrRigSetBonusEffectmodAdd: EffectID = 12982
+	public static let minmatarRigSetBonusEffectmodAdd: EffectID = 12984
+	public static let caldariRigSetBonusEffectmodAdd: EffectID = 12985
+	public static let rigSetDarkBloodBonusModAddSetRigGroup: EffectID = 12989
+	public static let rigSetTrueSanshaBonusModAddSetRigGroup: EffectID = 12990
+	public static let rigSetDreadGuristasBonusModAddSetRigGroup: EffectID = 12991
+	public static let rigSetShadowSerpentisBonusModAddSetRigGroup: EffectID = 12992
+	public static let rigSetDominationBonusModAddSetRigGroup: EffectID = 12993
+	public static let rigNosferatuNeutralizerDrainAmountBonusPostPercentPassive: EffectID = 12996
+	public static let rigNosferatuNeutralizerOverloadAmountBonusPostPercentPassive: EffectID = 12997
+	public static let rigNosferatuNeutralizerMaxRangeBonusPostPercentPassive: EffectID = 12998
+	public static let rigNosferatuNeutralizerFalloffRangeBonusPostPercentPassive: EffectID = 12999
+	public static let bloodRigSetBonusEffectmodAdd: EffectID = 13000
+	public static let rigCapacitorRechargeTimeBonusPostPercentPassive: EffectID = 13001
+	public static let rigAfterburnerSpeedAmountPostPercentPassive: EffectID = 13002
+	public static let rigAfterburnerOverloadAmountPostPercentPassive: EffectID = 13003
+	public static let rigAfterburnerActivationCostPenaltyPostPercentPassive: EffectID = 13005
+	public static let sanshaRigSetBonusEffectmodAdd: EffectID = 13006
+	public static let rigModifyWebResistancePostPercentPassive: EffectID = 13007
+	public static let serpentisRigSetBonusEffectmodAdd: EffectID = 13008
+	public static let rigMaxTargetingRangePenaltyPostPercentPassive: EffectID = 13009
+	public static let rigBonusDroneDamagePostPercentPassive: EffectID = 13010
+	public static let rigDroneControlRangePenaltyPassivePostPercent: EffectID = 13011
+	public static let guristasRigSetBonusEffectmodAdd: EffectID = 13012
+	public static let rigSignatureRadiusReductionBonusPostPercentPassive: EffectID = 13015
+	public static let angelRigSetBonusEffectmodAdd: EffectID = 13016
+	public static let rigShieldArmorHullHitpointsPenaltyPostPercentPassive: EffectID = 13017
+	public static let rigMissileDamageBonusAllDamageTypesPostPercent: EffectID = 13020
 	public static let hybridDroneDamageMultiplierBonus: EffectID = 13021
 	public static let eliteBonusGunshipHybridTracking1: EffectID = 13024
-	public static let shipMissileDamageCF: EffectID = 13025
 	public static let shipBonusDroneTrackingGF2: EffectID = 13026
 	public static let shipMissileDamageAF: EffectID = 13027
 	public static let eliteBonusGunshipLaserOptimal2: EffectID = 13042
 	public static let gunshipSkillMultiplier3: EffectID = 13044
 	public static let eliteBonusHeavyGunshipDroneControlRange2: EffectID = 13045
 	public static let warshipSkillMultiplier3: EffectID = 13046
+	public static let moduleAberrantOverdriveInjectorSystemActiveSpeedBurstEffect: EffectID = 13048
+	public static let moduleAberrantShieldBoostAmplifierShieldBoosterBonusEffectActivation: EffectID = 13049
+	public static let moduleAberrantDroneNavigationComputerBonusEffectActivation: EffectID = 13050
+	public static let moduleAberrantCapRechargerBonusEffectActivation: EffectID = 13051
+	public static let eliteBonusGunshipArmorHitpoints2: EffectID = 13053
+	public static let subsystemBonusGallenteCore3WeaponAndSensorResistance: EffectID = 13054
+	public static let subsystemBonusCaldariCore3WeaponAndSensorResistance: EffectID = 13055
+	public static let shipMissileKineticDamageCC3: EffectID = 13056
+	public static let boosterDirectionalScannerRangeBonusPassive: EffectID = 13057
+	public static let boosterOverheatMicrowarpScramBenefitsPassive: EffectID = 13058
+	public static let synchronizerRigHybridWeaponDamageMultiplyPostMulPassive: EffectID = 13070
+	public static let synchronizerRigEnergyWeaponDamageMultiplyPostMulPassive: EffectID = 13071
+	public static let synchronizerRigProjectileWeaponDamageMultiplyPostMulPassive: EffectID = 13072
+	public static let synchronizerRigMissileDMGBonusPreMulPassive: EffectID = 13073
+	public static let shipSmallMissileEMDmgCF: EffectID = 13074
+	public static let shipSmallMissileExplosiveDmgCF: EffectID = 13075
+	public static let shipSmallMissileThermalDmgCF: EffectID = 13076
+	public static let roleBonusMaxActiveDronesAssign: EffectID = 13078
 	public static let characterDamageMissiles: EffectID = 20000
 	public static let naniteRepairPasteArmorDamageBonus: EffectID = 20001
 	public static let tacticalMode: EffectID = 20002

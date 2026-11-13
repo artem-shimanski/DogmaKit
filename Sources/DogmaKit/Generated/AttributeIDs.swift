@@ -1,6 +1,6 @@
 //
 // DogmaKit
-// SDE Version: 3667080, 2026-11-03T11:08:50Z
+// SDE Version: 3698585, 2026-11-13T11:06:47Z
 //
 
 import DogmaModels
@@ -2872,15 +2872,71 @@ extension AttributeID {
 	public static let dScanRangeBonus: AttributeID = 6269
 	public static let proximityDbuffEffectTacticalDestroyerHP: AttributeID = 6270
 	public static let npcDroneTypeID: AttributeID = 6271
+	public static let bcLargeLauncherPower: AttributeID = 6280
+	public static let bcLargeLauncherCPU: AttributeID = 6281
+	public static let rigSetAmarrNavyModule: AttributeID = 6312
+	public static let rigSetCaldariNavyModule: AttributeID = 6313
+	public static let rigSetGallenteNavyModule: AttributeID = 6314
+	public static let rigSetMinmatarFleetModule: AttributeID = 6315
+	public static let rigSetAmarrNavyBonus: AttributeID = 6316
+	public static let rigSetCaldariNavyBonus: AttributeID = 6317
+	public static let rigSetGallenteNavyBonus: AttributeID = 6318
+	public static let rigSetMinmatarFleetBonus: AttributeID = 6319
+	public static let academyItem: AttributeID = 6325
+	public static let equivalentStandardItem: AttributeID = 6326
 	public static let conduitPassengerBonusModAddSkill: AttributeID = 6350
+	public static let scanMagnetometricStrengthMod: AttributeID = 6356
+	public static let scanRadarStrengthMod: AttributeID = 6357
+	public static let scanGravimetricStrengthModAdd: AttributeID = 6358
+	public static let scanLadarStrengthModAdd: AttributeID = 6359
+	public static let rigShieldBoostBonus: AttributeID = 6361
 	public static let debuffLanceDamageResistance: AttributeID = 6363
 	public static let baseJumpBridgeCapacitorCost: AttributeID = 6364
+	public static let rigSetDarkBloodModule: AttributeID = 6372
+	public static let rigSetTrueSanshaModule: AttributeID = 6373
+	public static let rigSetDreadGuristasModule: AttributeID = 6374
+	public static let rigSetShadowSerpentisModule: AttributeID = 6375
+	public static let rigSetDominationAngelModule: AttributeID = 6376
+	public static let rigSetDarkBloodBonus: AttributeID = 6377
+	public static let rigSetTrueSanshaBonus: AttributeID = 6378
+	public static let rigSetDreadGuristasBonus: AttributeID = 6379
+	public static let rigSetShadowSerpentisBonus: AttributeID = 6380
+	public static let rigSetDominationAngelBonus: AttributeID = 6381
+	public static let rigNosferatuNeutralizerDrainAmount: AttributeID = 6384
+	public static let rigNosferatuNeutralizerDrainAmountOverheatingBonus: AttributeID = 6385
+	public static let rigNosferatuNeutralizerOptimalRange: AttributeID = 6386
+	public static let rigNosferatuNeutralizerFalloffRange: AttributeID = 6387
+	public static let rigCapRechargeTimePenalty: AttributeID = 6388
+	public static let rigAfterburnerSpeedBonus: AttributeID = 6389
+	public static let rigAfterburnerOverloadingBonus: AttributeID = 6390
+	public static let rigEnergyTurretOverloadBonus: AttributeID = 6391
+	public static let rigAfterburnerCapacitorCostPenalty: AttributeID = 6392
+	public static let rigStasisWebResistance: AttributeID = 6393
+	public static let rigTargetingRangePenalty: AttributeID = 6394
+	public static let rigDroneControlRangePenalty: AttributeID = 6397
+	public static let rigSignatureRadiusBonus: AttributeID = 6398
+	public static let rigShieldArmorHullHitpointsPenalty: AttributeID = 6399
+	public static let rigHybridTurretDamageBonus: AttributeID = 6404
+	public static let rigEnergyTurretDamageBonus: AttributeID = 6405
+	public static let rigProjectileTurretDamageBonus: AttributeID = 6406
+	public static let rigMissileLauncherDamageBonus: AttributeID = 6407
 	public static let remoteCapacitorImpedance: AttributeID = 6463
 	public static let remoteCapacitorImpedanceBonus: AttributeID = 6464
 	public static let behaviorSiegeRemoteCapacitorImpedanceModifier: AttributeID = 6465
 	public static let eliteBonusHeavyGunship3: AttributeID = 6476
-	public static let tacticalModes: AttributeID = 6477
-	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6478
-	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6479
-	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6480
+	public static let isafighterExplosionRadiusReductionBonusActive: AttributeID = 6477
+	public static let isafighterExplosionVelocityBonusActive: AttributeID = 6478
+	public static let moduleAberrantOverdriveActiveSpeedBoostAmount: AttributeID = 6481
+	public static let moduleAberrantShieldBoostAmplifierShieldBoosterBonusEffect: AttributeID = 6482
+	public static let moduleAberrantDroneNavigationComputerBonusEffect: AttributeID = 6483
+	public static let moduleAberrantCapRechargerBonusEffect: AttributeID = 6484
+	public static let boosterDirectionalScannerRangeBonus: AttributeID = 6497
+	public static let boosterOverheatMicrowarpScramBenefits: AttributeID = 6498
+	public static let rigHiddenTurretDamageMultiplier: AttributeID = 6529
+	public static let rigHiddenMissileDamageMultiplier: AttributeID = 6530
+	public static let roleMaxActiveDronesAssign: AttributeID = 6535
+	public static let tacticalModes: AttributeID = 6536
+	public static let chargedArmorDamageMultiplierPostDiv: AttributeID = 6537
+	public static let fighterAbilityAttackMissileReductionExponent: AttributeID = 6538
+	public static let fighterAbilityMissilesDamageReductionExponent: AttributeID = 6539
 }

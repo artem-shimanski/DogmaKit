@@ -1,10 +1,10 @@
 //
 // DogmaKit
-// SDE Version: 3667080, 2026-11-03T11:08:50Z
+// SDE Version: 3698585, 2026-11-13T11:06:47Z
 //
 
 /// The SDE build the package's data was imported from.
 public enum SDEVersion {
-    public static let buildNumber = 3667080
-    public static let releaseDate = "2026-11-03T11:08:50Z"
+    public static let buildNumber = 3698585
+    public static let releaseDate = "2026-11-13T11:06:47Z"
 }
